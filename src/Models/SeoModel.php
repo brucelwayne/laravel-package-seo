@@ -2,7 +2,7 @@
 
 namespace Brucelwayne\SEO\Models;
 
-use Brucelwayne\SEO\SeoType;
+use Brucelwayne\SEO\Enums\SeoType;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 

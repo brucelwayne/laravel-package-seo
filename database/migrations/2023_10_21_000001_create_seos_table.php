@@ -16,15 +16,15 @@ return new class extends Migration {
             $table->string('model')->index();
             $table->string('model_id')->index();
 
-            $table->integer('type')->index();//article webpage book profile etc...
-            $table->text('url');
-            $table->text('image_url');
-            $table->text('canonical');
-            $table->text('title');
-            $table->text('keywords');
-            $table->text('description');
-            $table->text('coordinate');
-            $table->text('payload');
+            $table->string('type')->index();//article webpage book profile etc...
+            $table->text('url')->nullable();
+            $table->text('image_url')->nullable();
+            $table->text('canonical')->nullable();
+            $table->text('title')->nullable();
+            $table->text('keywords')->nullable();
+            $table->text('description')->nullable();
+            $table->text('coordinate')->nullable();
+            $table->text('payload')->nullable();
 
             $table->timestamps();
 

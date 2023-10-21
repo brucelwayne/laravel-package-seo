@@ -1,6 +1,6 @@
 <?php
 
-namespace Brucelwayne\SEO;
+namespace Brucelwayne\SEO\Enums;
 
 enum SeoType: string
 {

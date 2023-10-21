@@ -20,7 +20,7 @@ class SeoServiceProvider extends ServiceProvider
     protected function bootConfigs(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/blog.php', $this->module_name
+            __DIR__ . '/../config/seo.php', $this->module_name
         );
     }
 
