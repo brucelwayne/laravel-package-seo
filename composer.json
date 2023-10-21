@@ -1,0 +1,40 @@
+{
+    "name": "brucelwayne/laravel-package-seo",
+    "description": "",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bruce Wayne"
+        }
+    ],
+    "require": {
+        "artesaos/seotools": "^v1.2",
+        "spatie/laravel-translatable": "^6.5"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Brucelwayne\\SEO\\": "src"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Brucelwayne\\SEO\\Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Brucelwayne\\SEO\\SeoServiceProvider"
+            ],
+            "aliases": {
+
+            }
+        }
+    }
+}
