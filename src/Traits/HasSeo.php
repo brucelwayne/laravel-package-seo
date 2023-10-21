@@ -5,27 +5,26 @@ namespace Brucelwayne\SEO\Traits;
 use Brucelwayne\SEO\Models\SeoModel;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property  SeoModel $seo
+ */
 trait HasSeo
 {
 
-    protected ?SeoModel $seo_model;
+    protected ?SeoModel $observed_seo_model;
 
     protected bool $seo_observed = false;
 
     function seo()
     {
         $model_name = get_class($this);
-        if (empty($this->seo_model)){
-            if ($this->exists) {
-                //model exists
-                $this->seo_model = SeoModel::where([
-                    'model' => $model_name,
-                    'model_id' => $this->getKey(),
-                ])->first();
+        if (empty($this->observed_seo_model)){
+            if (!empty($this->seo)) {
+                $this->observed_seo_model = $this->seo;
             }
-            if (empty($this->seo_model)) {
-                $this->seo_model = new SeoModel();
-                $this->seo_model->model = $model_name;
+            if (empty($this->observed_seo_model)) {
+                $this->observed_seo_model = new SeoModel();
+                $this->observed_seo_model->model = $model_name;
             }
         }
 
@@ -34,8 +33,8 @@ trait HasSeo
                 /**
                  * @var Model $model
                  */
-                $this->seo_model->model_id = $model->getKey();
-                $this->seo_model->save();
+                $this->observed_seo_model->model_id = $model->getKey();
+                $this->observed_seo_model->save();
             };
             /**
              * @var Model $model_name
@@ -45,7 +44,7 @@ trait HasSeo
             $model_name::saved($callback);
             $this->seo_observed = true;
         }
-        return $this->seo_model;
+        return $this->observed_seo_model;
     }
 
     function getSeoAttribute(){
@@ -56,6 +55,20 @@ trait HasSeo
             'model' => get_class($this),
             'model_id'=>$this->getKey(),
         ])->first();
+    }
+
+    function getSeoTitle($default=''){
+        if (!empty($this->seo->title)){
+            return $this->seo->title;
+        }
+        return $default;
+    }
+
+    function getSeoDescription($default=''){
+        if (!empty($this->seo->description)){
+            return $this->seo->description;
+        }
+        return $default;
     }
 
 }
