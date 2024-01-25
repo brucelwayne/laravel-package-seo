@@ -1,7 +1,5 @@
 <?php
 
-use Brucelwayne\Blog\Enums\BlogStatus;
-use Brucelwayne\Blog\Enums\BlogType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
@@ -11,7 +9,7 @@ return new class extends Migration {
 
     public function up(): void
     {
-        Schema::create('seos', function (\Illuminate\Database\Schema\Blueprint $table) {
+        Schema::create('blw_seos', function (\Illuminate\Database\Schema\Blueprint $table) {
             $table->id();
             $table->string('model')->index();
             $table->string('model_id')->index();

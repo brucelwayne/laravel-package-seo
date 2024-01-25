@@ -27,7 +27,7 @@ class SeoModel extends Model
 {
     use HasTranslations;
 
-    protected $table = 'seos';
+    protected $table = 'blw_seos';
 
     public $translatable = [
         'url',
