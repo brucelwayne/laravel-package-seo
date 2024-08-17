@@ -10,7 +10,14 @@ class SEOMeta extends \Artesaos\SEOTools\SEOMeta
     {
         $this->loadWebMasterTags();
 
+        $app_name = config('app.name', '');
+
         $title = $this->getTitle();
+
+        if (!empty($app_name)) {
+            $title .= ' - ' . $app_name;
+        }
+
         $description = $this->getDescription();
         $keywords = $this->getKeywords();
         $metatags = $this->getMetatags();
