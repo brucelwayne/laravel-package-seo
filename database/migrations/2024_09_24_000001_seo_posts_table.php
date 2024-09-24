@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->index('created_at'); // 为 created_at 字段创建索引
             $table->index('updated_at');
             $table->index('converted_at');
+            $table->index('converted_post_id');
             $table->index(['fk_id', 'platform']); // 为 fk_id 和 platform 创建复合索引
         });
         Schema::create('blw_seo_media', function (Blueprint $table) {

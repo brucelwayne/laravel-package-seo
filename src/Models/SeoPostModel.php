@@ -16,6 +16,8 @@ use Mallria\Shop\Enums\ExternalPostPlatform;
  * @property string $content 帖子的内容
  * @property string $seo_user_id SEO用户ID
  * @property-read string $hash 模型的哈希值
+ * @property string $converted_at 什么时候转为帖子的
+ * @property integer $converted_post_id 转为帖子的id
  *
  */
 class SeoPostModel extends BaseMongoModel
@@ -37,6 +39,7 @@ class SeoPostModel extends BaseMongoModel
         'fk_id',
         'title',
         'content',
+        'converted_at',
         'payload',
     ];
 
