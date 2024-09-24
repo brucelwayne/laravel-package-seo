@@ -59,14 +59,15 @@ class SeoPostModel extends BaseMongoModel
         return $this->hasMany(SeoMediaModel::class, 'post_id', '_id')->where('tag', 'video');
     }
 
-    public function toSearchableArray()
-    {
-        return $this->toArray();
-    }
 
     public function seoUser()
     {
         return $this->belongsTo(SeoUserModel::class, 'seo_user_id');
+    }
+
+    public function toSearchableArray()
+    {
+        return $this->toArray();
     }
 
 }

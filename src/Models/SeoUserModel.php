@@ -83,4 +83,9 @@ class SeoUserModel extends BaseMysqlModel
     {
         return $this->hasMany(ExternalPostModel::class, 'seo_user_id', 'id');
     }
+
+    public function toSearchableArray()
+    {
+        return $this->toArray();
+    }
 }
