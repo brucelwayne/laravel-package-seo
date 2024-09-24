@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->index('seo_user_id');
             $table->index('fk_id'); // 为 fk_id 字段创建索引
             $table->index('created_at'); // 为 created_at 字段创建索引
+            $table->index('updated_at');
+            $table->index('converted_at');
             $table->index(['fk_id', 'platform']); // 为 fk_id 和 platform 创建复合索引
         });
         Schema::create('blw_seo_media', function (Blueprint $table) {
@@ -27,8 +29,7 @@ return new class extends Migration {
 
     public function down()
     {
-        Schema::dropIfExists('ex_posts'); // 删除 ex_posts 表
-        Schema::dropIfExists('ex_post_media'); // 删除 ex_post_images 表
+
     }
 };
 
