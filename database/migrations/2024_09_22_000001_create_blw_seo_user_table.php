@@ -11,14 +11,14 @@ return new class extends Migration {
     {
         Schema::create('blw_seo_user', function (\Illuminate\Database\Schema\Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->index(); // 本平台用户ID
-            $table->string('platform')->index(); // 外部平台名称
-            $table->string('ex_user_id')->index(); // 外部平台的用户ID
-            $table->string('ex_user_name')->nullable(); // 外部平台的用户ID
-            $table->text('ex_user_avatar')->nullable(); // 外部平台的用户ID
-            $table->text('ex_user_url')->nullable(); // 外部平台的用户URL
-
-            $table->timestamp('collected_at')->index();//上一次采集的时间
+            $table->unsignedBigInteger('user_id')->index()->comment('关联的本平台id'); // 本平台用户ID
+            $table->boolean('available')->default(false)->index()->comment('该账号是否启用'); // 是否可用
+            $table->string('platform')->index()->comment('来自哪个平台'); // 外部平台名称
+            $table->string('ex_user_id')->nullable()->index()->comment('外部的id');
+            $table->string('ex_user_name')->nullable()->comment('名字');
+            $table->text('ex_user_avatar')->nullable()->comment('头像');
+            $table->text('scrap_user_url')->nullable()->comment('采集的地址');
+            $table->timestamp('scrap_at')->index()->comment('上次采集的时间');
 
             $table->timestamps();
 
