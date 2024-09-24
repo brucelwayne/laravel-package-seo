@@ -21,9 +21,6 @@ return new class extends Migration {
             $table->timestamp('scrap_at')->index()->comment('上次采集的时间');
 
             $table->timestamps();
-
-            // 添加一个唯一约束，确保每个用户在每个平台只能绑定一个外部用户
-            $table->unique(['user_id', 'platform'], 'user_platform_unique');
         });
     }
 

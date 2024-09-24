@@ -2,14 +2,17 @@
 
 namespace Brucelwayne\SEO\Models;
 
-
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Mallria\Core\Models\BaseMysqlModel;
 use Mallria\Core\Models\User;
+use Mallria\Shop\Models\ExternalPostModel;
+use Veelasky\LaravelHashId\Eloquent\HashableId;
 
 /**
- * Class BlwSeoUser
+ * Class SeoUserModel
  *
  * @property int $id 主键ID
  * @property int $user_id 关联的本平台用户ID
@@ -23,21 +26,19 @@ use Mallria\Core\Models\User;
  * @property Carbon|null $created_at 创建时间
  * @property Carbon|null $updated_at 更新时间
  * @property-read User $user 关联的本平台用户
+ * @property-read Collection|ExternalPostModel[] $externalPosts 关联的外部帖子
  */
-class BlwSeoUserModel extends BaseMysqlModel
+class SeoUserModel extends BaseMysqlModel
 {
-    /**
-     * 与模型关联的表名
-     *
-     * @var string
-     */
-    protected $table = 'blw_seo_user';
+    const TABLE = 'blw_seo_user';
 
-    /**
-     * 可批量赋值的属性
-     *
-     * @var array
-     */
+    use HashableId;
+
+    protected $table = self::TABLE;
+    protected $hashKey = self::TABLE;
+
+    protected $appends = ['hash'];
+
     protected $fillable = [
         'user_id',
         'available',
@@ -49,15 +50,15 @@ class BlwSeoUserModel extends BaseMysqlModel
         'scrap_at',
     ];
 
-    /**
-     * 属性应被转换为原生类型
-     *
-     * @var array
-     */
     protected $casts = [
         'available' => 'boolean',
         'scrap_at' => 'datetime',
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'hash';
+    }
 
     /**
      * 获取关联的用户信息
@@ -66,8 +67,20 @@ class BlwSeoUserModel extends BaseMysqlModel
      *
      * @return BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * 获取关联的外部帖子
+     *
+     * 这是一个一对多的关系：一个 SeoUserModel 记录可以有多个 ExternalPostModel
+     *
+     * @return HasMany
+     */
+    public function externalPosts(): HasMany
+    {
+        return $this->hasMany(ExternalPostModel::class, 'seo_user_id', 'id');
     }
 }

@@ -3,6 +3,7 @@
 namespace Brucelwayne\SEO;
 
 use Illuminate\Config\Repository as Config;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class SeoServiceProvider extends ServiceProvider
@@ -14,6 +15,7 @@ class SeoServiceProvider extends ServiceProvider
 
     }
 
+
     function boot()
     {
         $this->bootConfigs();
@@ -22,6 +24,8 @@ class SeoServiceProvider extends ServiceProvider
         $this->app->extend('seotools.metatags', function ($command, $app) {
             return new SEOMeta(new Config($app['config']->get('seotools.meta', [])));
         });
+
+        $this->bootRoutes();
     }
 
     protected function bootConfigs(): void
@@ -34,5 +38,12 @@ class SeoServiceProvider extends ServiceProvider
     protected function bootMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+    }
+
+    private function bootRoutes()
+    {
+        Route::prefix('api')->middleware(['api'])->group(function () {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+        });
     }
 }
