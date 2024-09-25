@@ -42,6 +42,7 @@ class SeoServiceProvider extends ServiceProvider
 
     private function bootRoutes()
     {
+        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         Route::prefix('api')->middleware(['api'])->group(function () {
             $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
         });

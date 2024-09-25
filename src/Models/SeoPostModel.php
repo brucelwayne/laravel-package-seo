@@ -40,6 +40,7 @@ class SeoPostModel extends BaseMongoModel
         'title',
         'content',
         'converted_at',
+        'converted_post_id',
         'payload',
     ];
 
