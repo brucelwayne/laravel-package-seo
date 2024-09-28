@@ -30,7 +30,8 @@ return new class extends Migration {
 
     public function down()
     {
-
+        Schema::drop('blw_seo_posts');
+        Schema::drop('blw_seo_media');
     }
 };
 
