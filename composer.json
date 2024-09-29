@@ -32,7 +32,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Brucelwayne\\SEO\\SeoServiceProvider"
+                "Brucelwayne\\SEO\\SeoServiceProvider",
+                "Brucelwayne\\SEO\\EventServiceProvider"
             ],
             "aliases": {
 
