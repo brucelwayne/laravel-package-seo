@@ -23,7 +23,7 @@ class TranslatePostJob implements ShouldQueue
      * @param int $post_id The ID of the post to be translated.
      * @param string $locale The target locale for translation.
      */
-    public function __construct(public $post_id, public $locale)
+    public function __construct(public $post_id, public $locale, public $defaultLocale = 'zh')
     {
 
     }
@@ -43,9 +43,8 @@ class TranslatePostJob implements ShouldQueue
         Log::info('Fetching supported locales...');
 
         // 获取支持的语言区域
-        $supported_locales = LaravelLocalization::getSupportedLocales();
         $language = null;
-
+        $supported_locales = LaravelLocalization::getSupportedLocales();
         // 遍历支持的语言，匹配 locale，找到对应的语言名称
         foreach ($supported_locales as $locale => $supported_locale) {
             if ($locale === $this->locale) {
@@ -55,7 +54,6 @@ class TranslatePostJob implements ShouldQueue
         }
 
         Log::info('$language: ' . $language);
-
 
         // 如果没有找到对应的语言，标记为作业失败
         if (empty($language)) {
@@ -75,13 +73,15 @@ class TranslatePostJob implements ShouldQueue
             // 初始化翻译代理
             $postTranslateAgent = new PostTranslateAgent($chatModel);
 
-            $defaultLocale = $post_model->getDefaultLocale();
+            $post_model->setDefaultLocale($this->defaultLocale);
+
             /**
              * @var PostTranslationModel $default_post_translation_model
              */
-            $default_post_translation_model = $post_model->getTranslation($defaultLocale);
+            $default_post_translation_model = $post_model->getTranslation($this->defaultLocale);
 
             // 调用翻译代理执行翻译操作
+            Log::info('翻译文本: ' . $default_post_translation_model->content);
             $result = $postTranslateAgent->translateForLocale($language, $default_post_translation_model->content);
 
             Log::info('result: ' . $result);
