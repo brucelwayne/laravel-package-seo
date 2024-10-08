@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Mallria\Shop\Controllers\Scrap\ScrapSellerController;
+use Mallria\SEO\Controllers\ScrapSellerController;
 
 Route::post('external/seller/create', [ScrapSellerController::class, 'create']);
 Route::post('external/seller/get-job', [ScrapSellerController::class, 'getJob']);
