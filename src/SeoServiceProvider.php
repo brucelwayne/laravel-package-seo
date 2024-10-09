@@ -2,7 +2,9 @@
 
 namespace Brucelwayne\SEO;
 
+use Brucelwayne\SEO\Models\SeoPostModel;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +22,7 @@ class SeoServiceProvider extends ServiceProvider
     {
         $this->bootConfigs();
         $this->bootMigrations();
+        $this->bootRelationMaps();
 
         $this->app->extend('seotools.metatags', function ($command, $app) {
             return new SEOMeta(new Config($app['config']->get('seotools.meta', [])));
@@ -38,6 +41,13 @@ class SeoServiceProvider extends ServiceProvider
     protected function bootMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+    }
+
+    protected function bootRelationMaps()
+    {
+        Relation::enforceMorphMap([
+            SeoPostModel::TABLE => SeoPostModel::class,
+        ]);
     }
 
     private function bootRoutes()
