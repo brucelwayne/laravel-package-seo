@@ -12,8 +12,8 @@ class SEOMeta extends \Artesaos\SEOTools\SEOMeta
         $this->loadWebMasterTags();
 
         $title = $this->getTitle();
-        $app_name = __(config('app.name'));
-        $slogan = __(config('app.slogan'));
+        $app_name = config('app.name');
+        $slogan = config('app.slogan');
 
         if (empty($title)) {
             $title = $app_name . ' - ' . $slogan;
