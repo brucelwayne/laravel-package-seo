@@ -87,9 +87,18 @@ class TranslatePostJob implements ShouldQueue
             Log::info('result: ' . $result);
 
             // 在调用 json_decode 之前
-            $result = preg_replace('/^```json\s*|\s*```$/', '', $result);
+//            $result = preg_replace('/^```json\s*|\s*```$/', '', $result);
             // 尝试解析 JSON
-            $result = json_decode($result, true);
+//            $result = json_decode($result, true);
+
+            preg_match_all('/```json\s*(.*?)\s*```/ms', $result, $matches);
+            if (!empty($matches[1])) {
+                // 取最后一个匹配的字符串
+                $lastMatch = end($matches[1]);
+                // 尝试解析 JSON
+                $result = json_decode($lastMatch, true);
+            }
+
             // 记录解析后的结果
             Log::info('Decoded result: ' . json_encode($result));
 
