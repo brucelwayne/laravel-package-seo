@@ -4,6 +4,7 @@ namespace Brucelwayne\SEO\Jobs;
 
 use Brucelwayne\AI\Agents\PostTranslateAgent;
 use Brucelwayne\AI\LLMs\ChatGPT;
+use Brucelwayne\AI\Models\AiLogModel;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,6 +43,8 @@ class TranslatePostJob implements ShouldQueue
     {
         Log::info('Fetching supported locales...');
 
+        $big_model_name = 'qwen-max-latest';
+
         // 获取支持的语言区域
         $language = null;
         $supported_locales = LaravelLocalization::getSupportedLocales();
@@ -69,7 +72,7 @@ class TranslatePostJob implements ShouldQueue
 
         if (!empty($post_model)) {
             // 初始化 ChatGPT 模型
-            $chatModel = new ChatGPT(model: 'qwen-max-latest');
+            $chatModel = new ChatGPT(model: $big_model_name);
             // 初始化翻译代理
             $postTranslateAgent = new PostTranslateAgent($chatModel);
 
@@ -83,6 +86,14 @@ class TranslatePostJob implements ShouldQueue
             // 调用翻译代理执行翻译操作
             Log::info('翻译文本: ' . $default_post_translation_model->content);
             $result = $postTranslateAgent->translateForLocale($language, $default_post_translation_model->content);
+
+            //记录ai请求记录
+            AiLogModel::create([
+                'big_model_name' => $big_model_name,
+                'model_type' => $post_model->getMorphClass(),
+                'model_id' => $post_model->getKey(),
+                'response' => $result,
+            ]);
 
             Log::info('result: ' . $result);
 
