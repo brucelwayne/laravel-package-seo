@@ -42,6 +42,8 @@ class SeoPostModel extends BaseMongoModel
         'converted_at',
         'converted_post_id',
         'payload',
+        'created_at',
+        'updated_at',
     ];
 
     protected $casts = [
