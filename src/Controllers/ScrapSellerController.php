@@ -6,7 +6,6 @@ use Brucelwayne\SEO\Models\SeoPostModel;
 use Brucelwayne\SEO\Models\SeoUserModel;
 use Faker\Factory as Faker;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Mallria\Core\Http\Controllers\BaseController;
@@ -35,8 +34,6 @@ class ScrapSellerController extends BaseController
 
         $posts = $request->post('posts');
 
-        $randomTimestamp = Carbon::now()->subDays(rand(0, 7));
-
         $result = [];
         if (!empty($posts)) {
             DB::beginTransaction();
@@ -56,7 +53,6 @@ class ScrapSellerController extends BaseController
                                 'fk_id' => $post['goods_id'],
                                 'title' => $post['title'],
                                 'payload' => $post,
-                                'updated_at' => $randomTimestamp,
                             ]);
                             $result[] = $old_post;
                         }
@@ -68,8 +64,6 @@ class ScrapSellerController extends BaseController
                             'fk_id' => $post['goods_id'],
                             'title' => $post['title'],
                             'payload' => $post,
-                            'created_at' => $randomTimestamp,
-                            'updated_at' => $randomTimestamp,
                         ]);
                         $result[] = $new_post;
                     }

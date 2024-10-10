@@ -18,6 +18,7 @@ use Mallria\Shop\Enums\ExternalPostPlatform;
  * @property-read string $hash 模型的哈希值
  * @property string $converted_at 什么时候转为帖子的
  * @property integer $converted_post_id 转为帖子的id
+ * @property array download_medias 已经下载的文件
  *
  */
 class SeoPostModel extends BaseMongoModel
@@ -44,6 +45,7 @@ class SeoPostModel extends BaseMongoModel
         'payload',
         'created_at',
         'updated_at',
+        'download_medias',
     ];
 
     protected $casts = [
