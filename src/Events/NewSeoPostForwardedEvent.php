@@ -6,7 +6,6 @@ use Brucelwayne\SEO\Jobs\TranslatePostJob;
 use Brucelwayne\SEO\Models\SeoPostModel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
 use Mallria\Shop\Models\TranslatablePostModel;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -18,15 +17,14 @@ class NewSeoPostForwardedEvent
      * @param SeoPostModel $seo_post
      * @param TranslatablePostModel $post
      */
-    public function __construct(public $seo_post, public $post)
+    public function __construct(public $seo_post, public $post, public $locale = 'zh')
     {
-        $defaultLocale = $this->post->getDefaultLocale() ?? App::getLocale();
         $supported_locales = LaravelLocalization::getSupportedLocales();
-        foreach ($supported_locales as $locale => $supported_locale) {
-            if ($locale === $defaultLocale) {
+        foreach ($supported_locales as $_locale => $supported_locale) {
+            if ($_locale === $locale) {
                 continue;
             }
-            TranslatePostJob::dispatch(post_id: $this->post->getKey(), locale: $locale);
+            TranslatePostJob::dispatch(post_id: $this->post->getKey(), locale: $_locale);
         }
     }
 }
