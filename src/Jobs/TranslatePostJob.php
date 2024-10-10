@@ -102,13 +102,7 @@ class TranslatePostJob implements ShouldQueue
             // 尝试解析 JSON
 //            $result = json_decode($result, true);
 
-            preg_match_all('/```json\s*(.*?)\s*```/ms', $result, $matches);
-            if (!empty($matches[1])) {
-                // 取最后一个匹配的字符串
-                $lastMatch = end($matches[1]);
-                // 尝试解析 JSON
-                $result = json_decode($lastMatch, true);
-            }
+            $result = get_json_result_from_ai_response($result);
 
             // 记录解析后的结果
             Log::info('Decoded result: ' . json_encode($result));
@@ -138,17 +132,13 @@ class TranslatePostJob implements ShouldQueue
              * @var PostTranslationModel $post_translation_model
              */
             $post_translation_model = $post_model->translateOrNew($this->locale);
-            Log::info('$post_translation: ' . json_encode($post_translation_model->toArray()));
             $post_translation_model->content = $result['text'];
             $post_translation_model->save();
+            Log::info('$post_translation: ' . json_encode($post_translation_model->toArray()));
             $post_model->save();
 
             // 使用正则表达式从翻译文本中提取所有标签
-            $tags = [];
-            preg_match_all('/#(\S+)/', $result['text'], $matches);
-            if (!empty($matches[1])) {
-                $tags = $matches[1];
-            }
+            $tags = get_tags_from_string($result['text']);
 
             Log::info('$tags: ' . json_encode($tags));
             // 如果有标签，进行同步操作
