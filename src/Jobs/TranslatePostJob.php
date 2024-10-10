@@ -41,7 +41,7 @@ class TranslatePostJob implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('Fetching supported locales...');
+//        Log::info('Fetching supported locales...');
 
         $big_model_name = 'qwen-max-latest';
 
@@ -56,7 +56,7 @@ class TranslatePostJob implements ShouldQueue
             }
         }
 
-        Log::info('$language: ' . $language);
+//        Log::info('$language: ' . $language);
 
         // 如果没有找到对应的语言，标记为作业失败
         if (empty($language)) {
@@ -84,7 +84,7 @@ class TranslatePostJob implements ShouldQueue
             $default_post_translation_model = $post_model->getTranslation($this->defaultLocale);
 
             // 调用翻译代理执行翻译操作
-            Log::info('翻译文本: ' . $default_post_translation_model->content);
+//            Log::info('翻译文本: ' . $default_post_translation_model->content);
             $result = $postTranslateAgent->translateForLocale($language, $default_post_translation_model->content);
 
             //记录ai请求记录
@@ -95,7 +95,7 @@ class TranslatePostJob implements ShouldQueue
                 'response' => $result,
             ]);
 
-            Log::info('result: ' . $result);
+//            Log::info('result: ' . $result);
 
             // 在调用 json_decode 之前
 //            $result = preg_replace('/^```json\s*|\s*```$/', '', $result);
@@ -105,7 +105,7 @@ class TranslatePostJob implements ShouldQueue
             $result = get_json_result_from_ai_response($result);
 
             // 记录解析后的结果
-            Log::info('Decoded result: ' . json_encode($result));
+//            Log::info('Decoded result: ' . json_encode($result));
 
             // 处理翻译失败或返回数据异常的情况
             if (empty($result['status'])) {
@@ -134,13 +134,13 @@ class TranslatePostJob implements ShouldQueue
             $post_translation_model = $post_model->translateOrNew($this->locale);
             $post_translation_model->content = $result['text'];
             $post_translation_model->save();
-            Log::info('$post_translation: ' . json_encode($post_translation_model->toArray()));
+//            Log::info('$post_translation: ' . json_encode($post_translation_model->toArray()));
             $post_model->save();
 
             // 使用正则表达式从翻译文本中提取所有标签
             $tags = get_tags_from_string($result['text']);
 
-            Log::info('$tags: ' . json_encode($tags));
+//            Log::info('$tags: ' . json_encode($tags));
             // 如果有标签，进行同步操作
             if (!empty($tags)) {
                 /**
