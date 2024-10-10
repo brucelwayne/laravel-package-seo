@@ -28,7 +28,7 @@ class ScrapSellerController extends BaseController
             'ex_user_id' => 'required|string|max:32',
         ]);
         $platform = ExternalPostPlatform::from($request->post('platform'));
-        $ex_user_hash = $request->post('ex_user_id');
+        $ex_user_hash = $request->post('ex_user');
         $seo_user_model = SeoUserModel::byHashOrFail($ex_user_hash);
         $seo_user_model->load(['user']);
 
