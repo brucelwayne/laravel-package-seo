@@ -20,6 +20,8 @@ use Mallria\Shop\Enums\ExternalPostPlatform;
  * @property integer $converted_post_id 转为帖子的id
  * @property array download_medias 已经下载的文件
  *
+ * @property SeoUserModel $seo_user
+ *
  */
 class SeoPostModel extends BaseMongoModel
 {
@@ -68,9 +70,9 @@ class SeoPostModel extends BaseMongoModel
     }
 
 
-    public function seoUser()
+    public function seo_user()
     {
-        return $this->belongsTo(SeoUserModel::class, 'seo_user_id');
+        return $this->belongsTo(SeoUserModel::class, 'seo_user_id', 'id');
     }
 
     public function toSearchableArray()

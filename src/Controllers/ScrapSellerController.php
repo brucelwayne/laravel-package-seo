@@ -25,7 +25,7 @@ class ScrapSellerController extends BaseController
     {
         $request->validate([
             'platform' => 'required|string',
-            'ex_user_id' => 'required|string|max:32',
+            'ex_user' => 'required|string|max:32',
         ]);
         $platform = ExternalPostPlatform::from($request->post('platform'));
         $ex_user_hash = $request->post('ex_user');
@@ -113,7 +113,7 @@ class ScrapSellerController extends BaseController
 
                         // 检查 seller 表中是否有相同的平台 ID 和外部 ID
                         $existingSeller = SeoUserModel::where('platform', $platform->value)
-                            ->where('ex_user_id', $shop_id)
+                            ->where('fk_user_id', $shop_id)
                             ->first();
 
                         if ($existingSeller) {
@@ -143,9 +143,9 @@ class ScrapSellerController extends BaseController
                         $new_seller = SeoUserModel::create([
                             'user_id' => $new_user->id,
                             'platform' => $platform->value,
-                            'ex_user_id' => $shop_id,
-                            'ex_user_name' => $shop_name,
-                            'ex_user_avatar' => $user_icon,
+                            'fk_user_id' => $shop_id,
+                            'fk_user_name' => $shop_name,
+                            'fk_user_avatar' => $user_icon,
                             'scrap_user_url' => $shop_url,
                             'available' => true,
                         ]);

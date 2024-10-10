@@ -18,9 +18,9 @@ use Veelasky\LaravelHashId\Eloquent\HashableId;
  * @property int $user_id 关联的本平台用户ID
  * @property bool $available 该账号是否启用
  * @property string $platform 外部平台名称
- * @property string|null $ex_user_id 外部平台用户ID
- * @property string|null $ex_user_name 外部平台用户名
- * @property string|null $ex_user_avatar 外部平台用户头像
+ * @property string|null $fk_user_id 外部平台用户ID
+ * @property string|null $fk_user_name 外部平台用户名
+ * @property string|null $fk_user_avatar 外部平台用户头像
  * @property string|null $scrap_user_url 采集的用户地址
  * @property Carbon|null $scrap_at 上次采集的时间
  * @property Carbon|null $created_at 创建时间
@@ -43,9 +43,9 @@ class SeoUserModel extends BaseMysqlModel
         'user_id',
         'available',
         'platform',
-        'ex_user_id',
-        'ex_user_name',
-        'ex_user_avatar',
+        'fk_user_id',
+        'fk_user_name',
+        'fk_user_avatar',
         'scrap_user_url',
         'scrap_at',
     ];

@@ -39,24 +39,25 @@ if (!function_exists('get_json_result_from_ai_response')) {
         // 使用正则表达式匹配 ```json 标记的代码块，并提取中间的内容
         preg_match_all('/```json\s*(.*?)\s*```/ms', $content, $matches);
 
-        // 检查是否有匹配到的JSON代码块
         if (!empty($matches[1])) {
             // 取最后一个匹配到的JSON代码块内容
             $lastMatch = end($matches[1]);
-            // 尝试解析该内容为JSON，返回数组格式
-            $result = json_decode($lastMatch, true);
+            $jsonString = trim($lastMatch);
+
+            // 如果提取到的内容不是合法的JSON，则进行日志记录并返回null
+            $result = json_decode($jsonString, true);
         } else {
             // 如果没有匹配到代码块，直接尝试将整个响应作为JSON解析
             $result = json_decode($content, true);
         }
 
-        // 如果解析失败，返回null
         if (json_last_error() !== JSON_ERROR_NONE) {
+            // 将错误的响应内容和解析错误记录到日志
             Log::error('get_json_result_from_ai_response 不合法的json字符串：' . $content);
+            Log::error('JSON 解析错误信息：' . json_last_error_msg());
             return null;
         }
 
-        // 返回解析后的JSON数据
         return $result;
     }
 }
