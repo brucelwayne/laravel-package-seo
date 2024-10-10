@@ -143,10 +143,6 @@ class TranslatePostJob implements ShouldQueue
 //            Log::info('$tags: ' . json_encode($tags));
             // 如果有标签，进行同步操作
             if (!empty($tags)) {
-                /**
-                 * @var PostTranslationModel $post_translation_model
-                 */
-                $post_translation_model = $post_model->getTranslation($this->locale);
                 $post_translation_model->syncTags($tags);
             }
         }
