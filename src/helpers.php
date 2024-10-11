@@ -13,12 +13,19 @@ if (!function_exists('get_tags_from_string')) {
     {
         $tags = [];
         // 使用正则表达式匹配所有以 # 开头的标签，标签内不允许有空格或其他 # 符号
-//        preg_match_all('/#([^\s#]+)/u', $content, $matches);
-        preg_match_all('/#(\S+?)(?=#|\s|$)/u', $content, $matches);
+        //preg_match_all('/#(\S+?)(?=#|\s|$)/u', $content, $matches);
+        //preg_match_all('/#(\S+?)(?=#|\s|$)/u', $content, $matches);
+        preg_match_all('/#([\p{L}\p{N}]+)/u', $content, $matches);
+
         // 如果有匹配的结果，将匹配的标签存入 $tags 数组
         if (!empty($matches[1])) {
             $tags = $matches[1];
+            // 截取每个标签为最多 32 个字符，并去掉空标签
+            $tags = array_filter(array_map(function ($tag) {
+                return substr(trim($tag), 0, 32); // 截取并去除首尾空格
+            }, $tags));
         }
+
         // 返回标签数组，找不到标签时返回空数组
         return $tags;
     }
