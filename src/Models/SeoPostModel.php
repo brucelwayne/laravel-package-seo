@@ -22,6 +22,8 @@ use Mallria\Shop\Enums\ExternalPostPlatform;
  *
  * @property SeoUserModel $seo_user
  *
+ * @method static static create($data)
+ *
  */
 class SeoPostModel extends BaseMongoModel
 {

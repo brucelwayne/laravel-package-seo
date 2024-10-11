@@ -62,7 +62,7 @@ class ScrapSellerController extends BaseController
                             'platform' => $platform->value,
                             'seo_user_id' => $seo_user_model->getKey(),
                             'fk_id' => $post['goods_id'],
-                            'title' => $post['title'],
+                            'title' => mb_convert_encoding($post['title'], 'UTF-8', 'auto'),
                             'payload' => $post,
                         ]);
                         $result[] = $new_post;
