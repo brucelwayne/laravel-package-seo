@@ -41,8 +41,6 @@ class TranslatePostJob implements ShouldQueue
      */
     public function handle()
     {
-//        Log::info('Fetching supported locales...');
-
         $big_model_name = 'qwen-max-latest';
 
         // 获取支持的语言区域
@@ -56,8 +54,6 @@ class TranslatePostJob implements ShouldQueue
             }
         }
 
-//        Log::info('$language: ' . $language);
-
         // 如果没有找到对应的语言，标记为作业失败
         if (empty($language)) {
             // 标记作业为失败，并附加失败原因
@@ -68,9 +64,17 @@ class TranslatePostJob implements ShouldQueue
         // 查找需要翻译的帖子
         $post_model = TranslatablePostModel::where('id', $this->post_id)->first();
 
-//        Log::info('$post_model: ' . json_encode($post_model->toArray()));
-
         if (!empty($post_model)) {
+
+            /**
+             * @var PostTranslationModel $default_post_translation_model
+             */
+            $default_post_translation_model = $post_model->getTranslation($this->defaultLocale);
+
+            if (empty($default_post_translation_model->content)) {
+                return;
+            }
+
             // 初始化 ChatGPT 模型
             $chatModel = new ChatGPT(model: $big_model_name);
             // 初始化翻译代理
@@ -78,13 +82,7 @@ class TranslatePostJob implements ShouldQueue
 
             $post_model->setDefaultLocale($this->defaultLocale);
 
-            /**
-             * @var PostTranslationModel $default_post_translation_model
-             */
-            $default_post_translation_model = $post_model->getTranslation($this->defaultLocale);
-
             // 调用翻译代理执行翻译操作
-//            Log::info('翻译文本: ' . $default_post_translation_model->content);
             $result = $postTranslateAgent->translateForLocale($language, $default_post_translation_model->content);
 
             //记录ai请求记录
@@ -95,17 +93,7 @@ class TranslatePostJob implements ShouldQueue
                 'response' => $result,
             ]);
 
-//            Log::info('result: ' . $result);
-
-            // 在调用 json_decode 之前
-//            $result = preg_replace('/^```json\s*|\s*```$/', '', $result);
-            // 尝试解析 JSON
-//            $result = json_decode($result, true);
-
             $result = get_json_result_from_ai_response($result);
-
-            // 记录解析后的结果
-//            Log::info('Decoded result: ' . json_encode($result));
 
             // 处理翻译失败或返回数据异常的情况
             if (empty($result['status'])) {
@@ -134,7 +122,6 @@ class TranslatePostJob implements ShouldQueue
             $post_translation_model = $post_model->translateOrNew($this->locale);
             $post_translation_model->content = $result['text'];
             $post_translation_model->save();
-//            Log::info('$post_translation: ' . json_encode($post_translation_model->toArray()));
             $post_model->save();
 
             // 使用正则表达式从翻译文本中提取所有标签
