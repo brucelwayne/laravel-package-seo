@@ -47,8 +47,8 @@ class TranslatePostJob implements ShouldQueue
         $language = null;
         $supported_locales = LaravelLocalization::getSupportedLocales();
         // 遍历支持的语言，匹配 locale，找到对应的语言名称
-        foreach ($supported_locales as $locale => $supported_locale) {
-            if ($locale === $this->locale) {
+        foreach ($supported_locales as $_locale => $supported_locale) {
+            if ($_locale === $this->locale) {
                 $language = $supported_locale['name'];
                 break;
             }
@@ -83,17 +83,21 @@ class TranslatePostJob implements ShouldQueue
             $post_model->setDefaultLocale($this->defaultLocale);
 
             // 调用翻译代理执行翻译操作
-            $result = $postTranslateAgent->translateForLocale($language, $default_post_translation_model->content);
+            $response = $postTranslateAgent->translateForLocale($language, $default_post_translation_model->content);
 
             //记录ai请求记录
             AiLogModel::create([
                 'big_model_name' => $big_model_name,
                 'model_type' => $post_model->getMorphClass(),
                 'model_id' => $post_model->getKey(),
-                'response' => $result,
+                'response' => $response,
             ]);
 
-            $result = get_json_result_from_ai_response($result);
+            if (config('app.debug')) {
+                Log::info('AI response：' . json_encode($response));
+            }
+
+            $result = get_json_result_from_ai_response($response);
 
             // 处理翻译失败或返回数据异常的情况
             if (empty($result['status'])) {
