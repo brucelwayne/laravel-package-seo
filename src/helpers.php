@@ -12,21 +12,21 @@ if (!function_exists('get_tags_from_string')) {
     function get_tags_from_string(string $content): array
     {
         $tags = [];
-        // 使用正则表达式匹配所有以 # 开头的标签，标签内不允许有空格或其他 # 符号
-        //preg_match_all('/#(\S+?)(?=#|\s|$)/u', $content, $matches);
-        //preg_match_all('/#(\S+?)(?=#|\s|$)/u', $content, $matches);
-        preg_match_all('/#([\p{L}\p{N}]+)/u', $content, $matches);
+        // 匹配@@TAGS_START@@和@@TAGS_END@@之间的内容
+        preg_match('/@@TAGS_START@@\s*(.*?)\s*@@TAGS_END@@/s', $content, $matches);
 
-        // 如果有匹配的结果，将匹配的标签存入 $tags 数组
         if (!empty($matches[1])) {
-            $tags = $matches[1];
-            // 截取每个标签为最多 32 个字符，并去掉空标签
-            $tags = array_filter(array_map(function ($tag) {
-                return substr(trim($tag), 0, 32); // 截取并去除首尾空格
-            }, $tags));
+            // 使用正则表达式匹配所有以 # 开头的标签，标签内不允许有空格或符号
+            preg_match_all('/#([\p{L}\p{N}]+)/u', $matches[1], $tagMatches);
+
+            if (!empty($tagMatches[1])) {
+                // 将匹配到的标签存入 $tags 数组，截取并过滤
+                $tags = array_filter(array_map(function ($tag) {
+                    return substr(trim($tag), 0, 32); // 截取标签长度至32字符
+                }, $tagMatches[1]));
+            }
         }
 
-        // 返回标签数组，找不到标签时返回空数组
         return $tags;
     }
 }
@@ -35,37 +35,48 @@ if (!function_exists('get_json_result_from_ai_response')) {
     /**
      * 从AI的响应中提取并解析JSON。
      *
-     * 该方法会尝试从AI的响应中提取JSON内容。如果响应中包含以 ```json 标记的代码块，
-     * 它会优先提取并解析最后一个JSON代码块。如果没有这种代码块，则直接尝试将整个响应解析为JSON。
+     * 该方法会尝试从AI的响应中提取优化后的内容和标签，并根据需要将标签附加到优化后的文本中。
      *
      * @param string $content AI的响应内容。
+     * @param bool $withTags 是否在优化后的文本后附加标签。
      * @return array|null 返回解析后的JSON数据（数组格式），如果无法解析则返回null。
      */
-    function get_json_result_from_ai_response($content): ?array
+    function get_json_result_from_ai_response($content, $withTags = true): ?array
     {
-        // 使用正则表达式匹配 ```json 标记的代码块，并提取中间的内容
-        preg_match_all('/```json\s*(.*?)\s*```/ms', $content, $matches);
+        $result = [];
 
-        if (!empty($matches[1])) {
-            // 取最后一个匹配到的JSON代码块内容
-            $lastMatch = end($matches[1]);
-            $jsonString = trim($lastMatch);
+        // 匹配优化后的文本部分
+        preg_match('/@@OPTIMIZED_TEXT_START@@\s*(.*?)\s*@@OPTIMIZED_TEXT_END@@/s', $content, $textMatches);
 
-            // 如果提取到的内容不是合法的JSON，则进行日志记录并返回null
-            $result = json_decode($jsonString, true);
+        if (!empty($textMatches[1])) {
+            $result['text'] = trim($textMatches[1]); // 提取优化后的文本
         } else {
-            // 如果没有匹配到代码块，直接尝试将整个响应作为JSON解析
-            $result = json_decode($content, true);
-        }
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            // 将错误的响应内容和解析错误记录到日志
-            Log::error('get_json_result_from_ai_response 不合法的json字符串：' . $content);
-            Log::error('JSON 解析错误信息：' . json_last_error_msg());
+            Log::error('get_json_result_from_ai_response 未找到优化后的文本。');
             return null;
         }
 
-        return $result;
+        // 获取标签
+        $tags = get_tags_from_string($content);
+        $result['tags'] = $tags;
+
+        // 如果 $withTags 为 true，则将标签作为字符串添加到文本后面
+        if ($withTags) {
+            $tagsString = ' ' . implode(' ', array_map(function ($tag) {
+                    return '#' . $tag;
+                }, $tags));
+
+            // 将标签附加到文本后面
+            $result['text'] .= $tagsString;
+        }
+
+        // 构建返回格式
+        return [
+            'status' => 'success',
+            'text' => $result['text'],
+            'tags' => $result['tags'],
+            'message' => '优化成功'
+        ];
     }
+
 }
 
