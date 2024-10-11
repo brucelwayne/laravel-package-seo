@@ -177,6 +177,11 @@ class ScrapSellerController extends BaseController
             ->orderBy('scrap_at', 'asc')
             ->first();
 
+        //表示下发过了
+        $seo_job_model->update([
+            'scrap_at' => now(),
+        ]);
+
         return new SuccessJsonResponse([
             'job' => $seo_job_model,
         ]);
