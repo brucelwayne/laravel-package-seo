@@ -80,15 +80,7 @@ class SeoPostModel extends BaseMongoModel
     public function toSearchableArray()
     {
         $array = $this->toArray();
-
-        // 清理每个字段
-        foreach ($array as $key => $value) {
-            if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
-                $array[$key] = mb_convert_encoding($value, 'UTF-8', 'auto');
-            }
-        }
-
-        return $array;
+        return ensureUtf8Encoding($array);
     }
 
 }
