@@ -41,7 +41,7 @@ class TranslatePostJob implements ShouldQueue
      */
     public function handle()
     {
-        $big_model_name = config('openai.api_key');
+        $big_model_name = config('openai.model_name');
 
         // 获取支持的语言区域
         $language = null;
