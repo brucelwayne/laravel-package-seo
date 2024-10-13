@@ -6,11 +6,12 @@ use Artesaos\SEOTools\Facades\JsonLd;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\TwitterCard;
+use Brucelwayne\SEO\Enums\SeoType;
 use Mallria\Core\Models\PageModel;
 
-trait HasSEOPageMeta
+trait HasPageMeta
 {
-    function setPageMeta($domain, $route)
+    function setPageMeta($domain, $route, SeoType $type = SeoType::WebPage)
     {
         $page_model = PageModel::byDomainRoute($domain, $route);
         $url = route($route);
@@ -26,7 +27,7 @@ trait HasSEOPageMeta
 
             SEOMeta::setTitle($title);
             SEOMeta::setDescription($description);
-            SEOMeta::addMeta('author', config('app.name'));
+            SEOMeta::addMeta('publisher', config('app.name'));
 
             OpenGraph::setTitle($title);
             OpenGraph::setDescription($description);
@@ -42,25 +43,21 @@ trait HasSEOPageMeta
             if (!empty($featured_image)) {
                 TwitterCard::setImage($featured_image); // 添加图片链接
             }
-            TwitterCard::setSite(config('app.name'));
+            TwitterCard::setUrl($url);
 
             JsonLd::setTitle($title);
+            JsonLd::addValue('headline', $title);
             JsonLd::setDescription($description);
             JsonLd::setUrl($url);
-            JsonLd::setType('BlogPosting');
-            JsonLd::setSite(config('app.name'));
+            JsonLd::setType($type->value);
 
             JsonLd::addValue('datePublished', $page_model->created_at->toIso8601String());
             JsonLd::addValue('dateModified', $page_model->updated_at->toIso8601String());
-            JsonLd::addValue('author', [
-                '@type' => 'Organization',
-                'name' => config('app.name'),
-                'url' => config('app.url'),
-            ]);
 
             JsonLd::addValue('publisher', [
                 '@type' => 'Organization',
                 'name' => config('app.name'),
+                'url' => config('app.url'),
             ]);
         }
     }
