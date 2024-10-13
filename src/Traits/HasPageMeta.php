@@ -58,6 +58,10 @@ trait HasPageMeta
                 '@type' => 'Organization',
                 'name' => config('app.name'),
                 'url' => config('app.url'),
+                'logo' => [
+                    '@type' => 'ImageObject',
+                    'url' => asset('mallria-logo-transparent-white-bg.png')  // 替换为你的 logo URL
+                ],
             ]);
         }
     }
