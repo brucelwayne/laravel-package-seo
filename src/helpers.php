@@ -2,6 +2,32 @@
 
 use Illuminate\Support\Facades\Log;
 
+
+if (!function_exists('get_post_content_for_html_attribute')) {
+    function get_post_content_for_html_attribute($post)
+    {
+        // 获取标题和内容
+        $title = !empty($post->title) ? $post->title : null;
+        $content = !empty($post->content) ? $post->content : null;
+
+        // 如果标题和内容都为空，返回空字符串
+        if (empty($title) && empty($content)) {
+            return '';
+        }
+
+        // 如果标题不为空，优先使用标题，否则使用内容
+        $content = $title ?? $content;
+
+        // 清理内容：去掉HTML标签、替换多个空白字符为一个空格并去掉开头和结尾的空白字符
+        $content = strip_tags($content);
+        $content = preg_replace('/\s+/', ' ', $content);
+        $content = trim($content);
+
+        return $content;
+    }
+}
+
+
 if (!function_exists('get_tags_from_string')) {
     /**
      * 从给定的字符串中提取所有标签
