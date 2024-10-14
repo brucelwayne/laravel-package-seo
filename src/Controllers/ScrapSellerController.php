@@ -130,7 +130,7 @@ class ScrapSellerController extends BaseController
                             'password' => bcrypt($randomPassword), // 使用随机密码
                         ]);
 
-                        $handle_name = preg_replace('/[^A-Za-z0-9]/', '', $faker->userName);;
+                        $handle_name = generate_handle_name_from_string($faker->userName);
 
                         $new_user->handle()->updateOrCreate([
                             'handleable_type' => $new_user->getMorphClass(),
