@@ -64,5 +64,6 @@ trait HasPageMeta
                 ],
             ]);
         }
+        return $page_model;
     }
 }
