@@ -24,4 +24,5 @@ enum SeoType: string
     case Product = 'Product';  // 产品页面
     case Service = 'Service';  // 服务页面
     case JobPosting = 'JobPosting';  // 职位发布页面
+    case TagPage = 'TagPage';
 }
