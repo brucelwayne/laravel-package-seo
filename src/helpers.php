@@ -2,6 +2,21 @@
 
 use Illuminate\Support\Facades\Log;
 
+if (!function_exists('convertHashtagsToLinks')) {
+    function convertHashtagsToLinks($content)
+    {
+        //'/#(\S+?)(?=#|\s|$)/u'
+        // 匹配 #tag1#tag2#tag3 的情况
+        return preg_replace_callback('/#([\p{L}\p{N}]+)/u', function ($matches) {
+            $tag = $matches[1];
+            $encodedTag = strtolower(urlencode($tag)); // 对标签进行 URL 编码
+            $url = route('tag.single', [
+                'tag' => $encodedTag,
+            ]);
+            return "<a href='$url' class='text-blue-500 hover:underline'>#$tag</a>";
+        }, $content);
+    }
+}
 
 if (!function_exists('get_post_content_for_html_attribute')) {
     function get_post_content_for_html_attribute($post)
