@@ -2,6 +2,18 @@
 
 use Illuminate\Support\Facades\Log;
 
+
+if (!function_exists('extractHashtags')) {
+    function extractHashtags($content)
+    {
+        // 匹配 #tag1#tag2#tag3 的情况
+        preg_match_all('/#([\p{L}\p{N}]+)/u', $content, $matches);
+        // 提取标签并去掉#
+        return array_map('strtolower', $matches[1]); // 返回小写的标签数组
+    }
+}
+
+
 if (!function_exists('convertHashtagsToLinks')) {
     function convertHashtagsToLinks($content)
     {
@@ -43,14 +55,14 @@ if (!function_exists('get_post_content_for_html_attribute')) {
 }
 
 
-if (!function_exists('get_tags_from_string')) {
+if (!function_exists('get_tags_from_ai_response')) {
     /**
      * 从给定的字符串中提取所有标签
      *
      * @param string $content 包含标签的内容
      * @return array 提取的标签数组
      */
-    function get_tags_from_string(string $content): array
+    function get_tags_from_ai_response(string $content): array
     {
         $tags = [];
         // 匹配@@TAGS_START@@和@@TAGS_END@@之间的内容
@@ -97,7 +109,7 @@ if (!function_exists('get_json_result_from_ai_response')) {
         }
 
         // 获取标签
-        $tags = get_tags_from_string($content);
+        $tags = get_tags_from_ai_response($content);
         $result['tags'] = $tags;
 
         // 如果 $withTags 为 true，则将标签作为字符串添加到文本后面
