@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Mallria\Shop\Jobs\PostTagsJob;
 use Mallria\Shop\Models\PostTranslationModel;
 use Mallria\Shop\Models\TranslatablePostModel;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -128,15 +129,17 @@ class TranslatePostJob implements ShouldQueue
             $post_translation_model->save();
             $post_model->save();
 
-            // 使用正则表达式从翻译文本中提取所有标签
-            $tags = $result['tags'];
-//            Log::info('$tags: ' . json_encode($tags));
-            // 如果有标签，进行同步操作
-            if (!empty($tags)) {
-                $post_translation_model->syncTags($tags);
-            }
+            PostTagsJob::dispatchSync(post: $post_model);
 
-            $post_model->searchable();
+//            // 使用正则表达式从翻译文本中提取所有标签
+//            $tags = $result['tags'];
+////            Log::info('$tags: ' . json_encode($tags));
+//            // 如果有标签，进行同步操作
+//            if (!empty($tags)) {
+//                $post_translation_model->syncTags($tags);
+//            }
+//
+//            $post_model->searchable();
         }
     }
 }

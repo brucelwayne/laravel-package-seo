@@ -63,7 +63,7 @@ if (!function_exists('get_tags_from_string')) {
             if (!empty($tagMatches[1])) {
                 // 将匹配到的标签存入 $tags 数组，截取并过滤
                 $tags = array_filter(array_map(function ($tag) {
-                    return substr(trim($tag), 0, 32); // 截取标签长度至32字符
+                    return strtolower(substr(trim($tag), 0, 32)); // 截取标签长度至32字符
                 }, $tagMatches[1]));
             }
         }
