@@ -14,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Mallria\Shop\Jobs\PostTagsJob;
 use Mallria\Shop\Models\PostTranslationModel;
-use Mallria\Shop\Models\TranslatablePostModel;
+use Mallria\Shop\Models\TransPostModel;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class TranslatePostJob implements ShouldQueue
@@ -63,7 +63,7 @@ class TranslatePostJob implements ShouldQueue
         }
 
         // 查找需要翻译的帖子
-        $post_model = TranslatablePostModel::where('id', $this->post_id)->first();
+        $post_model = TransPostModel::where('id', $this->post_id)->first();
 
         if (!empty($post_model)) {
 

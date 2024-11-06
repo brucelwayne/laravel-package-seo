@@ -6,7 +6,7 @@ use Brucelwayne\SEO\Jobs\TranslatePostJob;
 use Brucelwayne\SEO\Models\SeoPostModel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Mallria\Shop\Models\TranslatablePostModel;
+use Mallria\Shop\Models\TransPostModel;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class NewSeoPostForwardedEvent
@@ -15,7 +15,7 @@ class NewSeoPostForwardedEvent
 
     /**
      * @param SeoPostModel $seo_post
-     * @param TranslatablePostModel $post
+     * @param TransPostModel $post
      */
     public function __construct(public $seo_post, public $post, public $locale = 'zh')
     {
