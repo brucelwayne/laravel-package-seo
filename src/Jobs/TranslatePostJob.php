@@ -13,7 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Mallria\Shop\Jobs\PostTagsJob;
-use Mallria\Shop\Models\PostTranslationModel;
+use Mallria\Shop\Models\Translations\PostTranslationModel;
 use Mallria\Shop\Models\TransPostModel;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
