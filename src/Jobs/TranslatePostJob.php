@@ -125,7 +125,7 @@ class TranslatePostJob implements ShouldQueue
              * @var PostTranslationModel $post_translation_model
              */
             $post_translation_model = $post_model->translateOrNew($this->locale);
-            $post_translation_model->content = $result['text'];
+            $post_translation_model->content = ensureStringUtf8Encoding($result['text']);
             $post_translation_model->save();
             $post_model->save();
 
