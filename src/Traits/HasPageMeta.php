@@ -18,7 +18,7 @@ trait HasPageMeta
         if (!empty($page_model)) {
 
             $title = $page_model->title;
-            $description = $page_model->description;
+            $description = $page_model->excerpt;
             $featured_image = empty($page_model->image->normal) ? null : empty($page_model->image->normal);
 
             if (empty($title) || empty($description)) {
