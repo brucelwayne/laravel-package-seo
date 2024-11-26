@@ -115,7 +115,7 @@ if (!function_exists('get_json_result_from_ai_response')) {
         // 如果 $withTags 为 true，则将标签作为字符串添加到文本后面
         if ($withTags) {
             $tagsString = ' ' . implode(' ', array_map(function ($tag) {
-                    return '#' . $tag;
+                    return ' #' . $tag;
                 }, $tags));
 
             // 将标签附加到文本后面
@@ -127,7 +127,7 @@ if (!function_exists('get_json_result_from_ai_response')) {
             'status' => 'success',
             'text' => $result['text'],
             'tags' => $result['tags'],
-            'message' => '优化成功'
+            'message' => '',
         ];
     }
 
