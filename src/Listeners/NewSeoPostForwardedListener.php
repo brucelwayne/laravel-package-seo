@@ -3,9 +3,8 @@
 namespace Brucelwayne\SEO\Listeners;
 
 use Brucelwayne\SEO\Events\NewSeoPostForwardedEvent;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class NewSeoPostForwardedListener implements ShouldQueue
+class NewSeoPostForwardedListener
 {
     /*
      * 需要翻译的语言

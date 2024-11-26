@@ -2,8 +2,12 @@
 
 namespace Brucelwayne\SEO\Events;
 
-use Brucelwayne\SEO\Jobs\TranslatePostJob;
+use Astrotomic\Translatable\Translatable;
+use Brucelwayne\AI\Jobs\AbstractAIJob;
+use Brucelwayne\AI\Jobs\PostTranslateJob;
+use Brucelwayne\AI\Traits\HasAIJob;
 use Brucelwayne\SEO\Models\SeoPostModel;
+use Illuminate\Bus\Dispatcher;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Mallria\Shop\Models\TransPostModel;
@@ -20,11 +24,37 @@ class NewSeoPostForwardedEvent
     public function __construct(public $seo_post, public $post, public $locale = 'zh')
     {
         $supported_locales = LaravelLocalization::getSupportedLocales();
-        foreach ($supported_locales as $_locale => $supported_locale) {
-            if ($_locale === $locale) {
+        foreach ($supported_locales as $localCode => $localValue) {
+            if ($localCode === $locale) {
                 continue;
             }
-            TranslatePostJob::dispatch(post_id: $this->post->getKey(), locale: $_locale);
+            /** @var Translatable|HasAIJob $translationModel */
+            $translationModel = $post->getTranslationOrNew($localCode);
+            $translationModel->save();
+
+            $existingJob = $translationModel->jobs()->where('job_name', PostTranslateJob::getName())->first();
+            if (!$existingJob) {
+                if (empty($translationModel->job)) {
+
+//                        $job = new $this->translateJobClassName($model, $fromLocale, $toLocale, $prompt);
+//                        $job->handle();
+
+                    $job = (new PostTranslateJob($post, $locale, $localCode, ''))
+                        ->onQueue('ai')
+                        ->delay(10);
+                    $jobId = $this->dispatchJob($job);
+                    $translationModel->jobs()->create([
+                        'job_name' => PostTranslateJob::getName(),
+                        'job_id' => $jobId,
+                    ]);
+                }
+            }
+//            TranslatePostJob::dispatch(post_id: $this->post->getKey(), locale: $_locale);
         }
+    }
+
+    private function dispatchJob(AbstractAIJob $job): string
+    {
+        return app(Dispatcher::class)->dispatch($job);
     }
 }
