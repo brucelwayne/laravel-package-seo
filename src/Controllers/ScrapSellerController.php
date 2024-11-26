@@ -54,7 +54,8 @@ class ScrapSellerController extends BaseController
                                 'title' => $post['title'],
                                 'payload' => $post,
                             ]);
-                            $result[] = $old_post;
+                            //更新的不算了
+//                            $result[] = $old_post;
                         }
                     } else {
                         //创建新的
