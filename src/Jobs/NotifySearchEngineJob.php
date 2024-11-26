@@ -76,7 +76,6 @@ class NotifySearchEngineJob implements ShouldQueue
         // 调用 API 提交索引
         $response = $service->urlNotifications->publish($body);
 
-        Log::info("Google Indexing Response for URL ({$this->url}): " . json_encode($response));
         return (array)$response;
     }
 
@@ -94,6 +93,7 @@ class NotifySearchEngineJob implements ShouldQueue
                 'model_id' => $this->modelId,
             ],
             [
+                'url' =>$this->url,
                 'google_indexed_at' => now(),
                 'response' => json_encode($response),
                 'payload' => [
@@ -102,8 +102,6 @@ class NotifySearchEngineJob implements ShouldQueue
                 ],
             ]
         );
-
-        Log::info("SEO indexing record updated for model: {$this->modelType}, ID: {$this->modelId}");
     }
 }
 

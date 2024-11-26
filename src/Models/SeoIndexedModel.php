@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use Mallria\Core\Models\BaseMysqlModel;
 
 /**
- *
+ * @property string $url
  * @property Carbon $google_indexed_at
  * @property string response
  * @property array payload
@@ -26,6 +26,7 @@ class SeoIndexedModel extends BaseMysqlModel
     protected $fillable = [
         'model_type',
         'model_id',
+        'url',
         'google_indexed_at',
         'response',
         'payload',
@@ -34,6 +35,10 @@ class SeoIndexedModel extends BaseMysqlModel
 
     protected $casts = [
         'payload' => 'array',
+    ];
+
+    protected $dates = [
+        'google_indexed_at',
     ];
 
     /**
