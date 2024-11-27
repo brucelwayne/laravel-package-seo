@@ -15,6 +15,7 @@ return new class extends Migration {
         Schema::create('seo_indexed', function (Blueprint $table) {
             $table->id();
             $table->morphs('model');
+            $table->string('locale')->nullable()->index();
             $table->text('url')->nullable();
             $table->timestamp('google_indexed_at')->nullable();
             $table->longText('response')->nullable();

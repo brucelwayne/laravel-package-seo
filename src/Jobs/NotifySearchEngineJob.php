@@ -5,17 +5,13 @@ namespace Brucelwayne\SEO\Jobs;
 use Brucelwayne\SEO\Models\SeoIndexedModel;
 use Google\Client;
 use Google\Service\Indexing;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
-class NotifySearchEngineJob implements ShouldQueue
+class NotifySearchEngineJob extends AbstractSEOJob
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
+    protected const NAME = 'notify-search-engine-job';
+    public $queue = 'seo';
+    protected $model;
+    protected string $locale;
     protected string $url;
     protected string $searchEngine;
     protected string $modelType;
@@ -24,17 +20,16 @@ class NotifySearchEngineJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
+     * @param $model
+     * @param string $locale
      * @param string $url
      * @param string $searchEngine
-     * @param string $modelType
-     * @param int $modelId
+     *
      */
-    public function __construct(string $url, string $searchEngine, string $modelType, int $modelId)
+    public function __construct($model, string $locale, string $url, string $searchEngine = 'google')
     {
-        $this->url = $url;
-        $this->searchEngine = strtolower($searchEngine);
-        $this->modelType = $modelType;
-        $this->modelId = $modelId;
+        parent::__construct($model, $locale, $url, $searchEngine, '');
+
     }
 
     /**
@@ -45,14 +40,20 @@ class NotifySearchEngineJob implements ShouldQueue
      */
     public function handle()
     {
-        $response = null;
+        $this->runTransaction(function () {
+            $jobable = $this->getJobable($this->model);
+            if (!empty($jobable)) {
+                $jobable->update(['failed_job_id' => null]);
+            }
+            $response = null;
+            if ($this->searchEngine === 'google') {
+                $response = $this->notifyGoogle();
+            }
+            // 记录到数据库
+            $this->recordIndexing($response);
 
-        if ($this->searchEngine === 'google') {
-            $response = $this->notifyGoogle();
-        }
-
-        // 记录到数据库
-        $this->recordIndexing($response);
+            $this->deleteJob();
+        });
     }
 
     /**
@@ -89,15 +90,15 @@ class NotifySearchEngineJob implements ShouldQueue
     {
         SeoIndexedModel::updateOrCreate(
             [
-                'model_type' => $this->modelType,
-                'model_id' => $this->modelId,
+                'model_type' => $this->model->getMorphClass(),
+                'model_id' => $this->model->getKey(),
             ],
             [
-                'url' =>$this->url,
+                'locale' => $this->locale,
+                'url' => $this->url,
                 'google_indexed_at' => now(),
                 'response' => json_encode($response),
                 'payload' => [
-                    'url' => $this->url,
                     'search_engine' => $this->searchEngine,
                 ],
             ]

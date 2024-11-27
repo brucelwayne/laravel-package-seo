@@ -5,6 +5,7 @@ namespace Brucelwayne\SEO;
 
 use Brucelwayne\SEO\Events\NewSeoPostForwardedEvent;
 use Brucelwayne\SEO\Events\SearchEngineIndexEvent;
+use Brucelwayne\SEO\Listeners\FailedJobListener;
 use Brucelwayne\SEO\Listeners\NewSeoPostForwardedListener;
 use Brucelwayne\SEO\Listeners\SearchEngineIndexListener;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -22,6 +23,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         SearchEngineIndexEvent::class => [
             SearchEngineIndexListener::class,
+        ],
+        'Illuminate\Queue\Events\JobFailed' => [
+            FailedJobListener::class
         ],
     ];
 

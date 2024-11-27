@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Mallria\Core\Models\BaseMysqlModel;
 
 /**
+ * @property string locale
  * @property string $url
  * @property Carbon $google_indexed_at
  * @property string response
@@ -26,6 +27,7 @@ class SeoIndexedModel extends BaseMysqlModel
     protected $fillable = [
         'model_type',
         'model_id',
+        'locale',
         'url',
         'google_indexed_at',
         'response',

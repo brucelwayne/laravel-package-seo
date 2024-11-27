@@ -4,6 +4,7 @@ namespace Brucelwayne\SEO\Traits;
 
 use Brucelwayne\SEO\Events\SearchEngineIndexEvent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Mallria\Core\Http\Responses\SuccessJsonResponse;
 use Mallria\Core\Models\PageModel;
 use Mallria\Shop\Models\TransPostModel;
@@ -30,7 +31,7 @@ trait HasSEOIndexRequest
         }
 
         if ($url) {
-            event(new SearchEngineIndexEvent($model, $url, 'google'));
+            event(new SearchEngineIndexEvent($model, App::getLocale(), $url, 'google'));
         }
 
         return new SuccessJsonResponse();

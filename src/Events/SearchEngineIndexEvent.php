@@ -16,6 +16,8 @@ class SearchEngineIndexEvent
      */
     public $model;
 
+    public $locale;
+
     public $url;
 
     /**
@@ -31,9 +33,10 @@ class SearchEngineIndexEvent
      * @param mixed $model The model associated with the indexing.
      * @param string $searchEngine The name of the search engine (e.g., 'Google').
      */
-    public function __construct($model, string $url, string $searchEngine = 'google')
+    public function __construct($model, string $locale, string $url, string $searchEngine = 'google')
     {
         $this->model = $model;
+        $this->locale = $locale;
         $this->url = $url;
         $this->searchEngine = $searchEngine;
     }
