@@ -8,6 +8,7 @@ use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\TwitterCard;
 use Brucelwayne\SEO\Enums\SeoType;
 use Mallria\Core\Models\PageModel;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 trait HasPageMeta
 {
