@@ -2,6 +2,8 @@
 
 namespace Brucelwayne\SEO\Models;
 
+use Mallria\Category\Models\TransCategoryModel;
+use Mallria\Category\Traits\HasMongoCategory;
 use Mallria\Core\Models\BaseMongoModel;
 use Mallria\Core\Models\User;
 use Mallria\Core\Traits\HasMongodbHashId;
@@ -18,6 +20,7 @@ use Mallria\Core\Traits\HasMongodbHashId;
 class UserFavoriteSeoPostModel extends BaseMongoModel
 {
     use HasMongodbHashId;
+    use HasMongoCategory;
 
     const TABLE = 'blw_user_favorite_seo_posts';
     protected $table = self::TABLE;
@@ -26,6 +29,7 @@ class UserFavoriteSeoPostModel extends BaseMongoModel
     protected $fillable = [
         'user_id',
         'seo_post_id',
+        'category_id',
     ];
 
     // 定义与 User 模型的关系
@@ -38,5 +42,10 @@ class UserFavoriteSeoPostModel extends BaseMongoModel
     public function seoPost()
     {
         return $this->belongsTo(SeoPostModel::class, 'seo_post_id');
+    }
+
+    public function category()
+    {
+        return $this->hasOne(TransCategoryModel::class, 'id', 'category_id');
     }
 }
