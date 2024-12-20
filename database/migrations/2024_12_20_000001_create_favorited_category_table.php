@@ -18,6 +18,7 @@ return new class extends Migration {
         });
         Schema::create('seo_post_quick_category', function (Blueprint $table) {
             $table->id();
+            $table->string('action')->nullable()->index();
             $table->string('seo_post_id')->index();
             $table->string('quick_category_id')->index();
             $table->unsignedBigInteger('category_id')->index();
