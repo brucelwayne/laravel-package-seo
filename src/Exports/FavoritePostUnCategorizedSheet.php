@@ -66,7 +66,7 @@ class FavoritePostUnCategorizedSheet implements FromCollection, WithHeadings, Wi
                 foreach ($this->posts as $post) {
                     $imageUrl = $post->seoPost->payload['imgs'][0] ?? null;
                     if ($imageUrl) {
-                        $this->insertImage($sheet, $imageUrl, 'A' . $rowIndex); // Draw image in column A
+//                        $this->insertImage($sheet, $imageUrl, 'A' . $rowIndex); // Draw image in column A
                     }
                     $rowIndex++;
                 }
