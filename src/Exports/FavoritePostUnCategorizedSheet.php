@@ -79,12 +79,12 @@ class FavoritePostUnCategorizedSheet implements FromCollection, WithHeadings, Wi
         try {
             $imageData = file_get_contents($url);
             if (!$imageData) {
-                throw new \Exception("Unable to fetch image from URL: $url");
+                return;
             }
 
             $imageResource = @imagecreatefromstring($imageData);
             if (!$imageResource) {
-                throw new \Exception("Invalid image resource from URL: $url");
+                return;
             }
 
             $drawing = new MemoryDrawing();
