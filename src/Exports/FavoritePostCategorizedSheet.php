@@ -73,7 +73,7 @@ class FavoritePostCategorizedSheet implements FromCollection, WithHeadings, With
                 foreach ($this->posts as $post) {
                     $imageUrl = $post->seoPost->payload['imgs'][0] ?? null;
                     if ($imageUrl) {
-                        $this->insertImage($sheet, $imageUrl, 'A' . $rowIndex); // 插入图片到A列
+//                        $this->insertImage($sheet, $imageUrl, 'A' . $rowIndex); // 插入图片到A列
                     }
                     $rowIndex++;
                 }
