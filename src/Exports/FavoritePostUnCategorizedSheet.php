@@ -12,10 +12,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 class FavoritePostUnCategorizedSheet implements FromCollection, WithHeadings, WithTitle, WithEvents
 {
     private $posts;
+    private $needs_image;
 
-    public function __construct($posts)
+    public function __construct($posts, $needs_image)
     {
         $this->posts = $posts;
+        $this->needs_image = $needs_image;
     }
 
     public function collection()
@@ -24,7 +26,7 @@ class FavoritePostUnCategorizedSheet implements FromCollection, WithHeadings, Wi
         return $this->posts->map(function ($post) {
             return [
                 'Image' => '',
-                'Title' => $post->seoPost->title ?? '',
+                'Title' => $post->title ?? '',
                 'Cost' => 0,
                 'Price' => 0,
                 'Shipping' => 0,
@@ -62,13 +64,15 @@ class FavoritePostUnCategorizedSheet implements FromCollection, WithHeadings, Wi
                 // 设置标题行的换行
                 $sheet->getStyle('A1:C1')->getAlignment()->setWrapText(true);
 
-                $rowIndex = 2; // Start inserting images from the second row
-                foreach ($this->posts as $post) {
-                    $imageUrl = $post->seoPost->payload['imgs'][0] ?? null;
-                    if ($imageUrl) {
-//                        $this->insertImage($sheet, $imageUrl, 'A' . $rowIndex); // Draw image in column A
+                if ($this->needs_image) {
+                    $rowIndex = 2; // Start inserting images from the second row
+                    foreach ($this->posts as $post) {
+                        $imageUrl = $post->payload['imgs'][0] ?? null;
+                        if ($imageUrl) {
+                            $this->insertImage($sheet, $imageUrl, 'A' . $rowIndex); // Draw image in column A
+                        }
+                        $rowIndex++;
                     }
-                    $rowIndex++;
                 }
             },
         ];
@@ -77,27 +81,34 @@ class FavoritePostUnCategorizedSheet implements FromCollection, WithHeadings, Wi
     private function insertImage($sheet, $url, $cellCoordinates)
     {
         try {
-            $imageData = file_get_contents($url);
+            // Fetch image data with timeout
+            $context = stream_context_create(['http' => ['timeout' => 15]]);
+            $imageData = @file_get_contents($url, false, $context);
+
             if (!$imageData) {
-                return;
+                return; // Could log this failure or proceed to next image
             }
 
             $imageResource = @imagecreatefromstring($imageData);
             if (!$imageResource) {
-                return;
+                return; // Could log this failure or proceed to next image
             }
 
             $drawing = new MemoryDrawing();
             $drawing->setName('Image');
             $drawing->setDescription('Post Image');
             $drawing->setImageResource($imageResource);
-            $drawing->setRenderingFunction(MemoryDrawing::RENDERING_PNG);
-            $drawing->setMimeType(MemoryDrawing::MIMETYPE_PNG);
-            $drawing->setHeight(50); // Adjust height as needed
+            $drawing->setRenderingFunction(MemoryDrawing::RENDERING_JPEG); // JPEG might be lighter for memory than PNG
+            $drawing->setMimeType(MemoryDrawing::MIMETYPE_JPEG);
+            $drawing->setHeight(50); // Keep height reasonable
             $drawing->setCoordinates($cellCoordinates);
             $drawing->setWorksheet($sheet);
+
+            // Free up memory by destroying the image resource after setting it to the worksheet
+            imagedestroy($imageResource);
         } catch (\Exception $e) {
-            // Log error or handle gracefully
+            // Log the error or handle it gracefully, e.g., with error logging
+            error_log("Failed to insert image at {$cellCoordinates}: " . $e->getMessage());
         }
     }
 }

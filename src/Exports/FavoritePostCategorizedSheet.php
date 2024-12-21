@@ -13,11 +13,13 @@ class FavoritePostCategorizedSheet implements FromCollection, WithHeadings, With
 {
     private $category;
     private $posts;
+    private $needs_image;
 
-    public function __construct($category, $posts)
+    public function __construct($category, $posts, $needs_image)
     {
         $this->category = $category;
         $this->posts = $posts;
+        $this->needs_image = $needs_image;
     }
 
     public function collection()
@@ -68,14 +70,15 @@ class FavoritePostCategorizedSheet implements FromCollection, WithHeadings, With
                 $sheet->getStyle('A1:C1')->getAlignment()->setHorizontal('center');
                 $sheet->getStyle('A1:C1')->getAlignment()->setVertical('center');
 
-                // 在第二行开始插入图片
-                $rowIndex = 2;
-                foreach ($this->posts as $post) {
-                    $imageUrl = $post->seoPost->payload['imgs'][0] ?? null;
-                    if ($imageUrl) {
-//                        $this->insertImage($sheet, $imageUrl, 'A' . $rowIndex); // 插入图片到A列
+                if ($this->needs_image) {
+                    $rowIndex = 2; // Start inserting images from the second row
+                    foreach ($this->posts as $post) {
+                        $imageUrl = $post->payload['imgs'][0] ?? null;
+                        if ($imageUrl) {
+                            $this->insertImage($sheet, $imageUrl, 'A' . $rowIndex); // Draw image in column A
+                        }
+                        $rowIndex++;
                     }
-                    $rowIndex++;
                 }
             },
         ];
@@ -85,26 +88,34 @@ class FavoritePostCategorizedSheet implements FromCollection, WithHeadings, With
     private function insertImage($sheet, $url, $cellCoordinates)
     {
         try {
-            $imageData = file_get_contents($url);
+            // Fetch image data with timeout
+            $context = stream_context_create(['http' => ['timeout' => 15]]);
+            $imageData = @file_get_contents($url, false, $context);
+
             if (!$imageData) {
-                return;
+                return; // Could log this failure or proceed to next image
             }
 
             $imageResource = @imagecreatefromstring($imageData);
             if (!$imageResource) {
-                return;
+                return; // Could log this failure or proceed to next image
             }
 
             $drawing = new MemoryDrawing();
             $drawing->setName('Image');
+            $drawing->setDescription('Post Image');
             $drawing->setImageResource($imageResource);
-            $drawing->setRenderingFunction(MemoryDrawing::RENDERING_JPEG);
-            $drawing->setMimeType(MemoryDrawing::MIMETYPE_DEFAULT);
-            $drawing->setCoordinates($cellCoordinates); // Image inserted at specified cell
-            $drawing->setHeight(50); // Adjust image height
+            $drawing->setRenderingFunction(MemoryDrawing::RENDERING_JPEG); // JPEG might be lighter for memory than PNG
+            $drawing->setMimeType(MemoryDrawing::MIMETYPE_JPEG);
+            $drawing->setHeight(50); // Keep height reasonable
+            $drawing->setCoordinates($cellCoordinates);
             $drawing->setWorksheet($sheet);
+
+            // Free up memory by destroying the image resource after setting it to the worksheet
+            imagedestroy($imageResource);
         } catch (\Exception $e) {
-            // Log error or handle gracefully
+            // Log the error or handle it gracefully, e.g., with error logging
+            error_log("Failed to insert image at {$cellCoordinates}: " . $e->getMessage());
         }
     }
 }
