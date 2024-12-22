@@ -7,31 +7,45 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
+use Mallria\App\Facades\AppFacade;
+use Mallria\Core\Facades\TenantFacade;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class FavoritePostCategorizedSheet implements FromCollection, WithHeadings, WithTitle, WithEvents
 {
     private $category;
     private $posts;
-    private $needs_image;
 
-    public function __construct($category, $posts, $needs_image)
+    public function __construct($category, $posts)
     {
         $this->category = $category;
         $this->posts = $posts;
-        $this->needs_image = $needs_image;
     }
 
     public function collection()
     {
-        // Map the posts to the required format (exclude image URLs here)
         return $this->posts->map(function ($post) {
+
+            $link = route('business.admin.app.workspace.external.post.single', [
+                'post' => $post->hash,
+                'tenant' => TenantFacade::get()->hash,
+                'app' => AppFacade::get()->hash,
+            ]);
+
             return [
                 'Image' => '',
-                'Title' => $post->seoPost->title ?? '',
+                'Link' => "=HYPERLINK(\"$link\", \"" . '链接' . "\")",
+                'Title' => $post->title ?? '',
                 'Cost' => 0,
                 'Price' => 0,
                 'Shipping' => 0,
+                'Profit' => '', // 毛利
+                'ProfitMargin' => '', // 毛利率
+                'BreakEvenQuantity' => '', // 平衡数量
+                'CPC' => '', // CPC成本
+                'CPA' => '', // CPA成本
+                'Revenue' => '', // 收入
+                'TotalCost' => '', // 总成本
             ];
         });
     }
@@ -40,16 +54,27 @@ class FavoritePostCategorizedSheet implements FromCollection, WithHeadings, With
     {
         return [
             '图片',
-            '产品',
+            '产品链接',
+            '产品名称',
             '采购价',
             '售价',
             '快递费',
+            '毛利',
+            '毛利率',
+            '平衡数量',
+            'CPC',
+            'CPA',
+            '收入',
+            '总成本',
         ];
     }
 
     public function title(): string
     {
-        return $this->category->name; // Category name as sheet title
+        if (empty($this->category)) {
+            return 'Uncategorized';
+        }
+        return $this->category->name;
     }
 
     public function registerEvents(): array
@@ -58,65 +83,26 @@ class FavoritePostCategorizedSheet implements FromCollection, WithHeadings, With
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // 设置列宽度，可以根据需要调整
-                $sheet->getColumnDimension('A')->setWidth(20);  // 设置图片列宽度
-                $sheet->getColumnDimension('B')->setWidth(40);  // 设置标题列宽度
-                $sheet->getColumnDimension('C')->setWidth(15);  // 设置价格列宽度
+                // 为 C 列（产品名称）启用自动换行
+                $sheet->getStyle('C')->getAlignment()->setWrapText(true);
 
-                // 设置标题行的换行
-                $sheet->getStyle('A1:C1')->getAlignment()->setWrapText(true);
+                // 设置 C 列宽度（可选）
+                $sheet->getColumnDimension('C')->setWidth(30);
 
-                // 可选: 设置标题行的文字居中
-                $sheet->getStyle('A1:C1')->getAlignment()->setHorizontal('center');
-                $sheet->getStyle('A1:C1')->getAlignment()->setVertical('center');
-
-                if ($this->needs_image) {
-                    $rowIndex = 2; // Start inserting images from the second row
-                    foreach ($this->posts as $post) {
-                        $imageUrl = $post->payload['imgs'][0] ?? null;
-                        if ($imageUrl) {
-                            $this->insertImage($sheet, $imageUrl, 'A' . $rowIndex); // Draw image in column A
-                        }
-                        $rowIndex++;
-                    }
-                }
+                // 设置标题行样式（可选）
+                $sheet->getStyle('A1:M1')->applyFromArray([
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                    'font' => [
+                        'bold' => true,
+                    ],
+                ]);
             },
         ];
     }
-
-
-    private function insertImage($sheet, $url, $cellCoordinates)
-    {
-        try {
-            // Fetch image data with timeout
-            $context = stream_context_create(['http' => ['timeout' => 15]]);
-            $imageData = @file_get_contents($url, false, $context);
-
-            if (!$imageData) {
-                return; // Could log this failure or proceed to next image
-            }
-
-            $imageResource = @imagecreatefromstring($imageData);
-            if (!$imageResource) {
-                return; // Could log this failure or proceed to next image
-            }
-
-            $drawing = new MemoryDrawing();
-            $drawing->setName('Image');
-            $drawing->setDescription('Post Image');
-            $drawing->setImageResource($imageResource);
-            $drawing->setRenderingFunction(MemoryDrawing::RENDERING_JPEG); // JPEG might be lighter for memory than PNG
-            $drawing->setMimeType(MemoryDrawing::MIMETYPE_JPEG);
-            $drawing->setHeight(50); // Keep height reasonable
-            $drawing->setCoordinates($cellCoordinates);
-            $drawing->setWorksheet($sheet);
-
-            // Free up memory by destroying the image resource after setting it to the worksheet
-            imagedestroy($imageResource);
-        } catch (\Exception $e) {
-            // Log the error or handle it gracefully, e.g., with error logging
-            error_log("Failed to insert image at {$cellCoordinates}: " . $e->getMessage());
-        }
-    }
 }
+
+
 
