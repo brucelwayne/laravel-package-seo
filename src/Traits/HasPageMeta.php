@@ -8,7 +8,6 @@ use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\TwitterCard;
 use Brucelwayne\SEO\Enums\SeoType;
 use Mallria\Core\Models\PageModel;
-use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 trait HasPageMeta
 {
@@ -17,7 +16,6 @@ trait HasPageMeta
         $page_model = PageModel::byDomainRoute($domain, $route);
         $url = route($route);
         if (!empty($page_model)) {
-
             $title = $page_model->title;
             $description = $page_model->excerpt;
             $featured_image = empty($page_model->image->normal) ? null : empty($page_model->image->normal);
