@@ -15,8 +15,12 @@ trait HasPageMeta
     {
         $page_model = PageModel::byDomainRoute($domain, $route);
         $url = route($route);
-        if (!empty($page_model)) {
 
+        if (empty($title)) {
+            $title = config('app.name');
+        }
+
+        if (!empty($page_model)) {
 
             $title = $page_model->title ?? $title;
 
@@ -66,9 +70,6 @@ trait HasPageMeta
                 ],
             ]);
         } else {
-            if (empty($title)) {
-                $title = config('app.name');
-            }
             SEOMeta::setTitle($title . ' - ' . config('app.slogan'));
         }
         return $page_model;
