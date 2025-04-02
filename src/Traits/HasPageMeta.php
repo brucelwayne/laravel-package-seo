@@ -11,12 +11,15 @@ use Mallria\Core\Models\PageModel;
 
 trait HasPageMeta
 {
-    function setPageMeta($domain, $route, SeoType $type = SeoType::WebPage)
+    function setPageMeta($domain, $route, SeoType $type = SeoType::WebPage, $title = '')
     {
         $page_model = PageModel::byDomainRoute($domain, $route);
         $url = route($route);
         if (!empty($page_model)) {
-            $title = $page_model->title;
+
+
+            $title = $page_model->title ?? $title;
+
             $description = $page_model->excerpt;
             $featured_image = empty($page_model->image->normal) ? null : empty($page_model->image->normal);
 
@@ -62,8 +65,9 @@ trait HasPageMeta
                     'url' => asset('mallria-logo-transparent-white-bg.png')  // 替换为你的 logo URL
                 ],
             ]);
+        } else {
+            SEOMeta::setTitle($title . ' - ' . config('app.slogan'));
         }
-
         return $page_model;
     }
 }
