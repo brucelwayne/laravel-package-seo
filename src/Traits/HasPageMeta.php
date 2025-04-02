@@ -66,6 +66,9 @@ trait HasPageMeta
                 ],
             ]);
         } else {
+            if (empty($title)) {
+                $title = config('app.name');
+            }
             SEOMeta::setTitle($title . ' - ' . config('app.slogan'));
         }
         return $page_model;
