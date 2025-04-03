@@ -2,76 +2,106 @@
 
 namespace Brucelwayne\SEO\Traits;
 
-use Artesaos\SEOTools\Facades\JsonLd;
-use Artesaos\SEOTools\Facades\OpenGraph;
-use Artesaos\SEOTools\Facades\SEOMeta;
-use Artesaos\SEOTools\Facades\TwitterCard;
+use Artesaos\SEOTools\Facades\{JsonLd, OpenGraph, SEOMeta, TwitterCard};
 use Brucelwayne\SEO\Enums\SeoType;
 use Mallria\Core\Models\PageModel;
 
 trait HasPageMeta
 {
-    function setPageMeta($domain, $route, SeoType $type = SeoType::WebPage, $title = '')
+    /**
+     * Set SEO metadata for a page
+     *
+     * @param string $domain
+     * @param string $route
+     * @param SeoType $type
+     * @param string $title
+     * @return PageModel|null
+     */
+    public function setPageMeta(string $domain, string $route, SeoType $type = SeoType::WebPage, string $title = ''): ?PageModel
     {
-        $page_model = PageModel::byDomainRoute($domain, $route);
+        $pageModel = PageModel::byDomainRoute($domain, $route);
         $url = route($route);
+        $defaultTitle = $title ?: config('app.name');
+        $slogan = config('app.slogan');
 
-        if (empty($title)) {
-            $title = config('app.name');
+        if (!$pageModel) {
+            SEOMeta::setTitle("{$defaultTitle} - {$slogan}");
+            return null;
         }
 
-        if (!empty($page_model)) {
+        $title = $this->prepareTitle($pageModel->title ?? $defaultTitle, $slogan);
+        $description = $pageModel->excerpt ?? '';
+        $featuredImage = $pageModel->image->normal ?? null;
 
-            $title = $page_model->title ?? $title;
+        if (!$title || !$description) {
+            return $pageModel;
+        }
 
-            $description = $page_model->excerpt;
-            $featured_image = empty($page_model->image->normal) ? null : empty($page_model->image->normal);
+        $this->setSeoMeta($title, $description, $url);
+        $this->setOpenGraph($title, $description, $url, $featuredImage);
+        $this->setTwitterCard($title, $description, $url, $featuredImage);
+        $this->setJsonLd($title, $description, $url, $type, $pageModel, $featuredImage);
 
-            if (empty($title) || empty($description)) {
-                return $page_model;
-            }
+        return $pageModel;
+    }
 
-            SEOMeta::setTitle($title);
-            SEOMeta::setDescription($description);
-            SEOMeta::addMeta('publisher', config('app.name'));
+    private function prepareTitle(string $title, string $slogan): string
+    {
+        return "{$title} - {$slogan}";
+    }
 
-            OpenGraph::setTitle($title);
-            OpenGraph::setDescription($description);
-            OpenGraph::setUrl($url);
-            if (!empty($featured_image)) {
-                OpenGraph::addImage($featured_image); // 添加图片链接
-            }
-            OpenGraph::setSiteName(config('app.name'));
+    private function setSeoMeta(string $title, string $description, string $url): void
+    {
+        SEOMeta::setTitle($title)
+            ->setDescription($description)
+            ->addMeta('publisher', config('app.name'));
+    }
 
-            TwitterCard::setType('summary_large_image'); // 设定为大图卡片
-            TwitterCard::setTitle($title);
-            TwitterCard::setDescription($description);
-            if (!empty($featured_image)) {
-                TwitterCard::setImage($featured_image); // 添加图片链接
-            }
-            TwitterCard::setUrl($url);
+    private function setOpenGraph(string $title, string $description, string $url, ?string $image): void
+    {
+        OpenGraph::setTitle($title)
+            ->setDescription($description)
+            ->setUrl($url)
+            ->setSiteName(config('app.name'));
 
-            JsonLd::setTitle($title);
-            JsonLd::addValue('headline', $title);
-            JsonLd::setDescription($description);
-            JsonLd::setUrl($url);
-            JsonLd::setType($type->value);
+        if ($image) {
+            OpenGraph::addImage($image);
+        }
+    }
 
-            JsonLd::addValue('datePublished', $page_model->created_at->toIso8601String());
-            JsonLd::addValue('dateModified', $page_model->updated_at->toIso8601String());
+    private function setTwitterCard(string $title, string $description, string $url, ?string $image): void
+    {
+        TwitterCard::setType('summary_large_image')
+            ->setTitle($title)
+            ->setDescription($description)
+            ->setUrl($url);
 
-            JsonLd::addValue('publisher', [
+        if ($image) {
+            TwitterCard::setImage($image);
+        }
+    }
+
+    private function setJsonLd(string $title, string $description, string $url, SeoType $type, PageModel $pageModel, ?string $image): void
+    {
+        JsonLd::setTitle($title)
+            ->setDescription($description)
+            ->setUrl($url)
+            ->setType($type->value)
+            ->addValue('headline', $title)
+            ->addValue('datePublished', $pageModel->created_at->toIso8601String())
+            ->addValue('dateModified', $pageModel->updated_at->toIso8601String())
+            ->addValue('publisher', [
                 '@type' => 'Organization',
                 'name' => config('app.name'),
                 'url' => config('app.url'),
                 'logo' => [
                     '@type' => 'ImageObject',
-                    'url' => asset('mallria-logo-transparent-white-bg.png')  // 替换为你的 logo URL
+                    'url' => asset('mallria-logo-transparent-white-bg.png')
                 ],
             ]);
-        } else {
-            SEOMeta::setTitle($title . ' - ' . config('app.slogan'));
+
+        if ($image) {
+            JsonLd::addImage($image);
         }
-        return $page_model;
     }
 }
