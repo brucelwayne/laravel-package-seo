@@ -84,8 +84,10 @@ class SEOMeta extends \Artesaos\SEOTools\SEOMeta
         $supportedLocales = LaravelLocalization::getSupportedLocales();
         $currentUrl = url()->current();
 
+        $default_url = LaravelLocalization::getLocalizedUrl('en', $currentUrl);
+        $html[] = "<link rel=\"alternate\" hreflang=\"x-default\" href=\"{$default_url}\">";
         foreach ($supportedLocales as $localeCode => $properties) {
-            $localizedUrl = LaravelLocalization::getLocalizedURL($localeCode, $currentUrl);
+            $localizedUrl = LaravelLocalization::getLocalizedUrl($localeCode, $currentUrl);
             $this->addAlternateLanguage($localeCode, $localizedUrl);
             $html[] = "<link rel=\"alternate\" hreflang=\"{$localeCode}\" href=\"{$localizedUrl}\">";
         }
