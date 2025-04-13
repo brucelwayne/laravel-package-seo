@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 use Mallria\Core\Http\Controllers\BaseController;
 use Mallria\Core\Http\Responses\ErrorJsonResponse;
 use Mallria\Core\Http\Responses\SuccessJsonResponse;
-use Mallria\Core\Models\User;
+use Mallria\Core\Models\UserModel;
 use Mallria\Shop\Enums\ExternalPostPlatform;
 
 class ScrapSellerController extends BaseController
@@ -125,7 +125,7 @@ class ScrapSellerController extends BaseController
                         $faker = Faker::create();
                         // 随机生成一个密码
                         $randomPassword = Str::random(12);
-                        $new_user = User::create([
+                        $new_user = UserModel::create([
                             'name' => $faker->name,
                             'email' => $faker->unique()->safeEmail,
                             'password' => bcrypt($randomPassword), // 使用随机密码

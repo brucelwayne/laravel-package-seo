@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Mallria\Core\Models\BaseMysqlModel;
-use Mallria\Core\Models\User;
+use Mallria\Core\Models\UserModel;
 use Mallria\Shop\Models\ExternalPostModel;
 use Veelasky\LaravelHashId\Eloquent\HashableId;
 
@@ -69,7 +69,7 @@ class SeoUserModel extends BaseMysqlModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(UserModel::class, 'user_id');
     }
 
     /**
