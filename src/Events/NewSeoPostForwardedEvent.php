@@ -2,7 +2,6 @@
 
 namespace Brucelwayne\SEO\Events;
 
-use Astrotomic\Translatable\Translatable;
 use Brucelwayne\AI\Jobs\AbstractAIJob;
 use Brucelwayne\AI\Jobs\PostTranslateJob;
 use Brucelwayne\AI\Traits\HasAIJob;
@@ -10,6 +9,7 @@ use Brucelwayne\SEO\Models\SeoPostModel;
 use Illuminate\Bus\Dispatcher;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Mallria\Main\Traits\HasMallriaTranslatable;
 use Mallria\Shop\Models\TransPostModel;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -28,7 +28,7 @@ class NewSeoPostForwardedEvent
             if ($localCode === $locale) {
                 continue;
             }
-            /** @var Translatable|HasAIJob $translationModel */
+            /** @var HasMallriaTranslatable|HasAIJob $translationModel */
             $translationModel = $post->getTranslationOrNew($localCode);
             $translationModel->save();
 
