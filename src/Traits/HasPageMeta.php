@@ -5,6 +5,7 @@ namespace Brucelwayne\SEO\Traits;
 use Artesaos\SEOTools\Facades\{JsonLd, OpenGraph, SEOMeta, TwitterCard};
 use Brucelwayne\SEO\Enums\SeoType;
 use Mallria\Core\Models\PageModel;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 trait HasPageMeta
 {
@@ -41,6 +42,8 @@ trait HasPageMeta
         $this->setOpenGraph($title, $description, $url, $featuredImage);
         $this->setTwitterCard($title, $description, $url, $featuredImage);
         $this->setJsonLd($title, $description, $url, $type, $pageModel, $featuredImage);
+
+        SEOMeta::setCanonical(LaravelLocalization::getNonLocalizedURL($url));
 
         return $pageModel;
     }
