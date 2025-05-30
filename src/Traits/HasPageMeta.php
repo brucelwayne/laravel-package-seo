@@ -22,35 +22,41 @@ trait HasPageMeta
     {
         $pageModel = PageModel::byDomainRoute($domain, $route);
         $url = route($route);
-        $defaultTitle = $title ?: config('app.name');
+        $appName = config('app.name');
         $slogan = config('app.slogan');
 
         if (!$pageModel) {
-            SEOMeta::setTitle("{$defaultTitle} - {$slogan}");
+            $seoTitle = $title
+                ? $this->prepareTitle($title, $appName)
+                : $this->prepareTitle($appName, $slogan);
+
+            SEOMeta::setTitle($seoTitle);
             return null;
         }
 
-        $title = $this->prepareTitle($pageModel->title ?? $defaultTitle, $slogan);
+        // 优先使用 PageModel 的标题，否则回退到传入的 $title，再到 appName
+        $resolvedTitle = $pageModel->title ?: ($title ?: $appName);
+        $seoTitle = $this->prepareTitle($resolvedTitle, $appName);
         $description = $pageModel->excerpt ?? '';
         $featuredImage = $pageModel->image->normal ?? null;
 
-        if (!$title || !$description) {
+        if (!$resolvedTitle || !$description) {
             return $pageModel;
         }
 
-        $this->setSeoMeta($title, $description, $url);
-        $this->setOpenGraph($title, $description, $url, $featuredImage);
-        $this->setTwitterCard($title, $description, $url, $featuredImage);
-        $this->setJsonLd($title, $description, $url, $type, $pageModel, $featuredImage);
+        $this->setSeoMeta($seoTitle, $description, $url);
+        $this->setOpenGraph($seoTitle, $description, $url, $featuredImage);
+        $this->setTwitterCard($seoTitle, $description, $url, $featuredImage);
+        $this->setJsonLd($seoTitle, $description, $url, $type, $pageModel, $featuredImage);
 
         SEOMeta::setCanonical(LaravelLocalization::getNonLocalizedURL($url));
 
         return $pageModel;
     }
 
-    private function prepareTitle(string $title, string $slogan): string
+    private function prepareTitle(string $title, string $suffix): string
     {
-        return "{$title} - {$slogan}";
+        return "{$title} - {$suffix}";
     }
 
     private function setSeoMeta(string $title, string $description, string $url): void
