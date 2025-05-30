@@ -26,9 +26,12 @@ trait HasPageMeta
         $slogan = config('app.slogan');
 
         if (!$pageModel) {
-            $seoTitle = $title
-                ? $this->prepareTitle($title, $appName)
-                : $this->prepareTitle($appName, $slogan);
+            //是否是首页
+            $isSame = $title && (strtolower($title) === strtolower($appName));
+
+            $seoTitle = !$title || $isSame
+                ? $this->prepareTitle($appName, $slogan)
+                : $this->prepareTitle($title, $appName);
 
             SEOMeta::setTitle($seoTitle);
             return null;
