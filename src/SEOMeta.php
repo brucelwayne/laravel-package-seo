@@ -2,6 +2,7 @@
 
 namespace Brucelwayne\SEO;
 
+use Artesaos\SEOTools\Facades\SEOTools;
 use Illuminate\Support\Arr;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -62,8 +63,13 @@ class SEOMeta extends \Artesaos\SEOTools\SEOMeta
             $html[] = "<meta {$name}=\"{$key}\" content=\"{$content}\">";
         }
 
+        $currentUrl = url()->current();
+
         // Add canonical link
         if ($canonical) {
+            $html[] = "<link rel=\"canonical\" href=\"{$canonical}\">";
+        } else {
+            $canonical = LaravelLocalization::getNonLocalizedURL($currentUrl);
             $html[] = "<link rel=\"canonical\" href=\"{$canonical}\">";
         }
 
@@ -82,9 +88,10 @@ class SEOMeta extends \Artesaos\SEOTools\SEOMeta
 
         // Dynamically add alternate languages
         $supportedLocales = LaravelLocalization::getSupportedLocales();
-        $currentUrl = url()->current();
 
         $default_url = LaravelLocalization::getLocalizedUrl('en', $currentUrl);
+        SEOTools::setCanonical($default_url);
+
         $html[] = "<link rel=\"alternate\" hreflang=\"x-default\" href=\"{$default_url}\">";
         foreach ($supportedLocales as $localeCode => $properties) {
             $localizedUrl = LaravelLocalization::getLocalizedUrl($localeCode, $currentUrl);
