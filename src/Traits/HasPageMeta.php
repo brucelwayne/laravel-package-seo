@@ -18,7 +18,13 @@ trait HasPageMeta
      * @param string $title
      * @return PageModel|null
      */
-    public function setPageMeta(string $domain, string $route, SeoType $type = SeoType::WebPage, string $title = ''): ?PageModel
+    public function setPageMeta(
+        string  $domain,
+        string  $route,
+        SeoType $type = SeoType::WebPage,
+        string  $title = '',
+        bool    $suffix = true
+    ): ?PageModel
     {
         $pageModel = PageModel::byDomainRoute($domain, $route);
         $url = route($route);
@@ -26,7 +32,7 @@ trait HasPageMeta
         $slogan = config('app.slogan');
 
         if (!$pageModel) {
-            //是否是首页
+            // 是否首页，判断标题和appName是否相等（忽略大小写）
             $isSame = $title && (strtolower($title) === strtolower($appName));
 
             $seoTitle = !$title || $isSame
@@ -39,7 +45,21 @@ trait HasPageMeta
 
         // 优先使用 PageModel 的标题，否则回退到传入的 $title，再到 appName
         $resolvedTitle = $pageModel->title ?: ($title ?: $appName);
-        $seoTitle = $this->prepareTitle($resolvedTitle, $appName);
+
+        // 判断标题是否以 "Mallria - " 开头（忽略大小写）
+        $prefix = $appName . ' - ';
+        if (stripos($resolvedTitle, $prefix) === 0) {
+            // 以 "Mallria - " 开头，不拼接后缀
+            $seoTitle = $resolvedTitle;
+        } else {
+            // 根据 $suffix 决定是否拼接后缀
+            if ($suffix) {
+                $seoTitle = $this->prepareTitle($resolvedTitle, $appName);
+            } else {
+                $seoTitle = $resolvedTitle;
+            }
+        }
+       
         $description = $pageModel->excerpt ?? '';
         $featuredImage = $pageModel->image->normal ?? null;
 
@@ -57,10 +77,14 @@ trait HasPageMeta
         return $pageModel;
     }
 
+    /**
+     * 简单拼接标题和后缀
+     */
     private function prepareTitle(string $title, string $suffix): string
     {
         return "{$title} - {$suffix}";
     }
+
 
     private function setSeoMeta(string $title, string $description, string $url): void
     {
