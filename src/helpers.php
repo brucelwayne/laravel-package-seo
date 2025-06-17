@@ -22,8 +22,8 @@ if (!function_exists('convertHashtagsToLinks')) {
         return preg_replace_callback('/#([\p{L}\p{N}]+)/u', function ($matches) {
             $tag = $matches[1];
             $encodedTag = strtolower(urlencode($tag)); // 对标签进行 URL 编码
-            $url = route('tag.single', [
-                'tag' => $encodedTag,
+            $url = route('tag.slug', [
+                'tag_slug' => $encodedTag,
             ]);
             return "<a href='$url' class='text-blue-500 hover:underline'>#$tag</a>";
         }, $content);
