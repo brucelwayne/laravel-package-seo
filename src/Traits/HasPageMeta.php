@@ -59,7 +59,7 @@ trait HasPageMeta
                 $seoTitle = $resolvedTitle;
             }
         }
-       
+
         $description = $pageModel->excerpt ?? '';
         $featuredImage = $pageModel->image->normal ?? null;
 
@@ -85,7 +85,6 @@ trait HasPageMeta
         return "{$title} - {$suffix}";
     }
 
-
     private function setSeoMeta(string $title, string $description, string $url): void
     {
         SEOMeta::setTitle($title)
@@ -100,9 +99,9 @@ trait HasPageMeta
             ->setUrl($url)
             ->setSiteName(config('app.name'));
 
-        if ($image) {
-            OpenGraph::addImage($image);
-        }
+        // Use featured image if available, otherwise use default image from config
+        $imagePath = $image ?: asset(config('seo.default_image', '/images/logo/v1/icon.png'));
+        OpenGraph::addImage($imagePath);
     }
 
     private function setTwitterCard(string $title, string $description, string $url, ?string $image): void
@@ -112,9 +111,9 @@ trait HasPageMeta
             ->setDescription($description)
             ->setUrl($url);
 
-        if ($image) {
-            TwitterCard::setImage($image);
-        }
+        // Use featured image if available, otherwise use default image from config
+        $imagePath = $image ?: asset(config('seo.default_image', '/images/logo/v1/icon.png'));
+        TwitterCard::setImage($imagePath);
     }
 
     private function setJsonLd(string $title, string $description, string $url, SeoType $type, PageModel $pageModel, ?string $image): void
@@ -136,8 +135,8 @@ trait HasPageMeta
                 ],
             ]);
 
-        if ($image) {
-            JsonLd::addImage($image);
-        }
+        // Use featured image if available, otherwise use default image from config
+        $imagePath = $image ?: asset(config('seo.default_image', '/images/logo/v1/icon.png'));
+        JsonLd::addImage($imagePath);
     }
 }
