@@ -92,11 +92,13 @@ class SEOMeta extends \Artesaos\SEOTools\SEOMeta
         $default_url = LaravelLocalization::getLocalizedUrl('en', $currentUrl);
         SEOTools::setCanonical($default_url);
 
-        $html[] = "<link rel=\"alternate\" hreflang=\"x-default\" href=\"{$default_url}\">";
-        foreach ($supportedLocales as $localeCode => $properties) {
-            $localizedUrl = LaravelLocalization::getLocalizedUrl($localeCode, $currentUrl);
-            $this->addAlternateLanguage($localeCode, $localizedUrl);
-            $html[] = "<link rel=\"alternate\" hreflang=\"{$localeCode}\" href=\"{$localizedUrl}\">";
+        if (count($supportedLocales)>1){
+            $html[] = "<link rel=\"alternate\" hreflang=\"x-default\" href=\"{$default_url}\">";
+            foreach ($supportedLocales as $localeCode => $properties) {
+                $localizedUrl = LaravelLocalization::getLocalizedUrl($localeCode, $currentUrl);
+                $this->addAlternateLanguage($localeCode, $localizedUrl);
+                $html[] = "<link rel=\"alternate\" hreflang=\"{$localeCode}\" href=\"{$localizedUrl}\">";
+            }
         }
 
         // Add robots meta tag
