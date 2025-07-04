@@ -5,7 +5,6 @@ namespace Brucelwayne\SEO;
 use Brucelwayne\SEO\Models\SeoPostModel;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class SeoServiceProvider extends ServiceProvider
@@ -52,9 +51,9 @@ class SeoServiceProvider extends ServiceProvider
 
     private function bootRoutes()
     {
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
-        Route::prefix('api')->middleware(['api'])->group(function () {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
-        });
+//        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+//        Route::prefix('api')->middleware(['api'])->group(function () {
+//            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+//        });
     }
 }
