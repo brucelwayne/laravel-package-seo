@@ -8,7 +8,7 @@ class SEOMeta extends \Artesaos\SEOTools\SEOMeta
 {
     function generate($minify = false)
     {
-        $currentRoute = Route::currentRouteName() ?? request()->route()->uri();
+        $currentRoute = Route::currentRouteName() ?? (request()->route() ? request()->route()->uri() : '');
         $disabledIndexRoutes = config('seo.disabled_index_routes', []);
 
         if (in_array($currentRoute, $disabledIndexRoutes)) {
@@ -18,11 +18,12 @@ class SEOMeta extends \Artesaos\SEOTools\SEOMeta
             if ($locale !== 'en') {
                 $this->setRobots('noindex, nofollow');
             } else {
-//                $this->setRobots('index, follow');
+                // $this->setRobots('index, follow');
             }
         }
-
         return parent::generate(true);
+
+        
 //        $this->loadWebMasterTags();
 //
 //        $title = $this->getTitle();
