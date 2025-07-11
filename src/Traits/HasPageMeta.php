@@ -4,7 +4,9 @@ namespace Brucelwayne\SEO\Traits;
 
 use Artesaos\SEOTools\Facades\{JsonLd, OpenGraph, SEOMeta, TwitterCard};
 use Brucelwayne\SEO\Enums\SeoType;
+use Mallria\Core\Facades\OptionCacheFacade;
 use Mallria\Core\Models\PageModel;
+use Mallria\Main\Enums\CacheKey;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 trait HasPageMeta
@@ -118,6 +120,14 @@ trait HasPageMeta
 
     private function setJsonLd(string $title, string $description, string $url, SeoType $type, PageModel $pageModel, ?string $image): void
     {
+        // Retrieve social media options from cache
+        $social_media_options = OptionCacheFacade::get(CacheKey::SocialMedia);
+
+        // Extract social media links for sameAs and filter out empty or null links
+        $sameAs = array_filter(array_column($social_media_options, 'link'), function ($link) {
+            return !is_null($link) && $link !== '';
+        });
+
         JsonLd::setTitle($title)
             ->setDescription($description)
             ->setUrl($url)
@@ -133,6 +143,7 @@ trait HasPageMeta
                     '@type' => 'ImageObject',
                     'url' => asset('mallria-logo-transparent-white-bg.png')
                 ],
+                'sameAs' => array_values($sameAs), // Reset array keys to ensure sequential indexing
             ]);
 
         // Use featured image if available, otherwise use default image from config
