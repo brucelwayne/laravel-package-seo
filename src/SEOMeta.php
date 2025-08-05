@@ -11,16 +11,16 @@ class SEOMeta extends \Artesaos\SEOTools\SEOMeta
         $currentRoute = Route::currentRouteName() ?? (request()->route() ? request()->route()->uri() : '');
         $disabledIndexRoutes = config('seo.disabled_index_routes', []);
 
-//        if (in_array($currentRoute, $disabledIndexRoutes)) {
-//            $this->setRobots('none');
-//        } elseif (empty($this->robots)) {
-//            $locale = app()->getLocale();
-//            if ($locale !== 'en') {
-//                $this->setRobots('noindex, nofollow');
-//            } else {
-//                // $this->setRobots('index, follow');
-//            }
-//        }
+        if (in_array($currentRoute, $disabledIndexRoutes)) {
+            $this->setRobots('none');
+        } elseif (empty($this->robots)) {
+            $locale = app()->getLocale();
+            if ($locale !== 'en') {
+                $this->setRobots('noindex, nofollow');
+            } else {
+                // $this->setRobots('index, follow');
+            }
+        }
         return parent::generate(true);
 
 
